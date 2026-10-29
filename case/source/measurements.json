@@ -1,0 +1,214 @@
+{
+  "_README": "Every number in this case that came from the physical world. Read via cadkit.Measurements; Verifier.measurements() FAILS the build on a fit-critical entry that is neither measured nor explicitly waived. Status changes ONLY on a new observation, and `source` must say what was actually observed. Never edit an entry to make a build pass -- same rule as the board's tools/cpl-ground-truth.json.",
+  "BOARD_W": {
+    "value": 74.0,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "justclock-pcb.kicad_pcb outline, via boardref.py"
+  },
+  "BOARD_H": {
+    "value": 74.0,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "justclock-pcb.kicad_pcb outline, via boardref.py"
+  },
+  "PCB_T": {
+    "value": 1.6,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "kicad_pcb nominal stackup (the STEP exports the 1.51 core; nominal is the fit number)"
+  },
+  "FRONT_STACK": {
+    "value": 5.886,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "boardref.py, tallest front-side solid in the board STEP"
+  },
+  "BACK_STACK": {
+    "value": 9.085,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "boardref.py, tallest back-side solid (J9 USB-C)"
+  },
+  "MOUNT_HOLE_D": {
+    "value": 3.2,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "footprint MountingHole_3.2mm_M3 in justclock-pcb.kicad_pcb, drill 3.2"
+  },
+  "FRONT_PROTRUSION_INSET": {
+    "value": 3.94,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "assembly-check.py: closest front-side THT pin tail to a board edge (J9)"
+  },
+  "SCREEN_MODULE_W": {
+    "value": 27.6,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "MEASURED OFF THE USER'S OWN Fusion design, '4sqaure og front plate.step' (exported 2026-08-05, in ~/Sync/4square). Cross-sectioned at 0.05 mm steps: the module pocket reads 28.200 square and the retainer pads on the matching back plate read 27.600 square, so the module is 27.60 with 0.30 clearance per side. This REFUTES models/vendor/OLED_0.96_bare.step (25.40 x 26.20), which is the same solid as the board STEP's placeholder and was never an independent source."
+  },
+  "SCREEN_MODULE_H": {
+    "value": 27.6,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "MEASURED OFF THE USER'S OWN Fusion design, '4sqaure og front plate.step' (exported 2026-08-05, in ~/Sync/4square). Cross-sectioned at 0.05 mm steps: the module pocket reads 28.200 square and the retainer pads on the matching back plate read 27.600 square, so the module is 27.60 with 0.30 clearance per side. This REFUTES models/vendor/OLED_0.96_bare.step (25.40 x 26.20), which is the same solid as the board STEP's placeholder and was never an independent source. The module is SQUARE; the earlier 27.70 x 27.90 came from a caliper note in CASE.md and was never square."
+  },
+  "GLASS_W": {
+    "value": 25.2,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "the window in the user's front plate, measured at z -3.95: 25.200 x 13.000. Earlier value 23.75 came from an lcdwiki drawing."
+  },
+  "GLASS_H": {
+    "value": 13.0,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "as GLASS_W: the window in the user's own front plate."
+  },
+  "GLASS_OFFSET": {
+    "value": 2.4,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "user's front plate: pocket centres sit at +-15.09, window centres at +-12.70, so the glass sits 2.40 mm toward the board centre. Earlier value 2.10 came from the Univision drawing. NOTE the window X centres match the pocket X centres to 0.01 mm, which independently confirms the offset is in Y ONLY."
+  },
+  "C3_STANDOFF": {
+    "value": 2.5,
+    "status": "assumed",
+    "fit_critical": true,
+    "source": "the project's recorded figure for a direct-solder male header. NOT observed on this board.",
+    "how_to_measure": "calipers: board back face to the underside of the C3 module PCB, on the fitted board",
+    "waiver": "nominal until the assembled board is in hand; it moves the USB-C slot in Z only, and the slot carries 0.35 mm of clearance per side"
+  },
+  "C3_OVERHANG": {
+    "value": 1.5,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "vendor STEP geometry. CASE.md's 2.08 came from a 3D placement offset, not from geometry."
+  },
+  "C3_CONN_W": {
+    "value": 8.94,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "USB-C receptacle shell, cross-checked against two vendor USB-C STEPs already in this project"
+  },
+  "C3_CONN_H": {
+    "value": 3.2,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "as C3_CONN_W"
+  },
+  "C3_MODULE_T": {
+    "value": 1.1,
+    "status": "assumed",
+    "fit_critical": true,
+    "source": "carried from the rev 2 shell, which attributes it to the ESP32-C3 SuperMini vendor STEP. The observation itself is recorded nowhere in this project, so it is logged assumed rather than inheriting a 'measured' status it never earned.",
+    "how_to_measure": "calipers across the C3 SuperMini's own PCB thickness, off the board",
+    "waiver": "moves the USB-C slot in Z only, by the same amount as C3_STANDOFF; the slot carries 0.35 mm clearance per side plus a 45 degree roof that only ever opens the aperture upward"
+  },
+  "USB_C_PLUG_OVERMOULD_W": {
+    "value": 12.35,
+    "status": "assumed",
+    "fit_critical": true,
+    "source": "USB Type-C specification MAXIMUM plug overmould width. The rev 2 shell modelled a 13.00 mm opening with no source at all; this records the number that opening was standing in for.",
+    "how_to_measure": "calipers across the overmould of the cable that will actually be plugged in",
+    "waiver": "a published maximum, so the error direction is safe: a real cable is smaller than the envelope the counterbore clears"
+  },
+  "USB_C_PLUG_OVERMOULD_H": {
+    "value": 6.5,
+    "status": "assumed",
+    "fit_critical": true,
+    "source": "USB Type-C specification MAXIMUM plug overmould height. Rev 2 modelled 7.50, unsourced.",
+    "how_to_measure": "calipers across the overmould of the cable that will actually be plugged in",
+    "waiver": "as USB_C_PLUG_OVERMOULD_W. Height is the tight axis: the counterbore roof rises 45 degrees to stay printable, so every extra millimetre eats the wall between the port and the back rim."
+  },
+  "WALL": {
+    "value": 2.19,
+    "status": "derived",
+    "fit_critical": false,
+    "source": "H2D classic wall generator: 0.42*2 + 0.45*3. Any other value leaves a gap-fill strip."
+  },
+  "EXTRUSION_OUTER": {
+    "value": 0.42,
+    "status": "measured",
+    "fit_critical": false,
+    "source": "Bambu H2D 0.4 nozzle profile, outer wall width"
+  },
+  "EXTRUSION_INNER": {
+    "value": 0.45,
+    "status": "measured",
+    "fit_critical": false,
+    "source": "Bambu H2D 0.4 nozzle profile, inner wall width"
+  },
+  "GLASS_PANEL_W": {
+    "value": 24.7,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "USER CALIPER 2026-08-08 across the cover glass, and INDEPENDENTLY the board STEP's own glass solid measures 24.700 exactly (z 5.385..5.885). Two sources agree.",
+    "how_to_measure": "calipers across the glass panel on the module's front, long axis"
+  },
+  "GLASS_PANEL_H": {
+    "value": 16.6,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "USER CALIPER 2026-08-08. The board STEP's glass solid is 17.000 on this axis; the user's 16.6 is the conservative one and is used, so the pocket cannot be undersized.",
+    "how_to_measure": "calipers across the glass panel, short axis"
+  },
+  "GLASS_PROUD": {
+    "value": 1.79,
+    "status": "derived",
+    "fit_critical": true,
+    "source": "board STEP: glass front 5.885 minus module PCB front 4.095. Sets the glass pocket depth.",
+    "how_to_measure": "depth gauge from the module PCB front face to the glass front face",
+    "waiver": "BRACKETED FROM BELOW 2026-08-09 and no longer load-bearing. 4square-glass-depth-fit-jig.py printed four glass-pocket depths twice; the glass reaches its seat at a pocket depth of 1.00 ('option eight we're going to go with'), so GLASS_PROUD >= 1.00. The exact value no longer decides whether the glass seats: GLASS_POCKET_D is now chosen at 1.00 by that test and the module pocket floor is deliberately held clear of the module's PCB face, so the floor is not a seat. What still depends on this number is only how much clearance the floor has (MODULE_FLOOR_CLR). SETTLE IT: depth gauge from the module PCB front face to the glass front face."
+  },
+  "ACTIVE_W": {
+    "value": 20.0,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "board STEP, the lit-area solid: 20.000 x 10.000 at z 4.085..4.585",
+    "how_to_measure": "power the module white and caliper the lit rectangle"
+  },
+  "ACTIVE_H": {
+    "value": 10.0,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "board STEP, the lit-area solid, as ACTIVE_W",
+    "how_to_measure": "as ACTIVE_W"
+  },
+  "ACTIVE_OFFSET": {
+    "value": 2.1,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "board STEP: lit-area centre y 17.98 vs module centre y 20.08. REPLACES the old GLASS_OFFSET=2.4, which was read off the user's front-plate window and conflated the lit area's offset with the glass's.",
+    "how_to_measure": "centre of the lit rectangle to the centre of the module PCB"
+  },
+  "GLASS_CENTRE_OFFSET": {
+    "value": 0.6,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "USER TEST 2026-08-09 on 4square-glass-pocket-fit-jig: four candidate offsets printed (-0.90/-0.40/+0.60/+1.10), a real module tried in each, cell 3 chosen -- 'number 3 is good fit and size'. REPLACES 0.10, which came off the board STEP's glass solid -- the same solid already refuted on GLASS_PANEL_H (17.00 vs the caliper's 16.60), so its centre was never independent evidence either.",
+    "how_to_measure": "centre of the glass panel to the centre of the module PCB; or re-run 4square-glass-pocket-fit-jig.py and fit a module to each cell"
+  },
+  "RIBBON_W": {
+    "value": 12.2,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "USER CALIPER 2026-08-08: the flex ribbon at the bottom edge of the screen is about 12.2 wide.",
+    "how_to_measure": "calipers across the flex ribbon where it leaves the glass"
+  },
+  "C3_PORT_TOP_ABOVE_BOARD_BACK": {
+    "value": 8.9,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "USER CALIPER 2026-08-08: 19.70 from the case's front outer face to the outward-facing top of the C3's USB-C shell, with the retainer fitted and no backplate; board back sits at 10.80, so 19.70-10.80. REPLACES the two ASSUMED waivers C3_STANDOFF(2.50)+C3_MODULE_T(1.10)=3.60, which understated the real stack by 2.10 -- the C3 is not direct-soldered.",
+    "how_to_measure": "caliper from the board's back face to the outward-facing top of the USB-C shell"
+  },
+  "MODULE_T": {
+    "value": 3.72,
+    "status": "measured",
+    "fit_critical": true,
+    "source": "USER CALIPER 2026-08-09, across a real OLED module: glass front face to bare PCB back face, clear of the header body and clear of the pin ends that stand proud on the glass side. SETTLES the 3.70-vs-3.301 conflict that had been open since 2026-08-07. 3.70 was DERIVED from the user's own back plate (pocket 5.20 - pad 1.50) and lands 0.02 away, so that plate is vindicated; the board STEP's 3.301 (its glass front 5.885 minus PCB back 2.585, the same definition) is REFUTED, like the rest of that STEP's glass solid.",
+    "how_to_measure": "calipers across a bare module off the board: one jaw on the glass, one on bare PCB on the back away from the header and any solder fillet"
+  }
+}
