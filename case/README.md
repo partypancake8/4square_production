@@ -6,7 +6,7 @@ laser-cut clear acrylic panel that shows the back of the board. The printed
 parts are case rev 5; the acrylic back and its standoff frame are case rev 6.
 Outside size is about 79 x 79 mm.
 
-![The acrylic back, seen from outside](../docs/media/acrylic-back-preview.png)
+<p align="center"><img src="../docs/media/acrylic-back-preview.png" width="520" alt="The acrylic back, seen from outside"></p>
 
 ## What to make
 

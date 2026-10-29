@@ -3,7 +3,7 @@
 Assemble the clock front to back, in the same order the parts come together in
 the exploded view.
 
-![Exploded view](media/still-exploded.png)
+<p align="center"><img src="media/still-exploded.png" width="520" alt="Exploded view"></p>
 
 ## What you need
 
@@ -44,7 +44,7 @@ Print and cut the parts as described in [`case/README.md`](../case/README.md).
    frame and board into the shell's corner bosses. Snug them; overtightening
    strips the printed threads or cracks the acrylic.
 
-![Assembled](media/still-assembled.png)
+<p align="center"><img src="media/still-assembled.png" width="520" alt="Assembled"></p>
 
 ## First power-up
 

@@ -1,8 +1,8 @@
 # 4square
 
-![4square on a desk](docs/media/4square-front.jpg)
+<p align="center"><img src="docs/media/4square-front.jpg" width="520" alt="4square on a desk"></p>
 
-[![Exploded view of the 4square case](docs/media/4square-exploded-640.gif)](docs/media/4square-exploded.gif)
+<p align="center"><a href="docs/media/4square-exploded.gif"><img src="docs/media/4square-exploded-640.gif" width="760" alt="Exploded view of the 4square case"></a></p>
 
 4square is a small desk clock built around four 0.96 in OLED panels in a 2x2
 grid: hours top-left, minutes top-right, weekday and date along the bottom. It
@@ -45,7 +45,12 @@ the board's manufacturing files and the case.
 
 ## Hardware
 
-![The back of the rev O board](docs/media/board-render-back.png)
+<table>
+<tr>
+<td align="center"><img src="docs/media/board-front-full.png" width="420" alt="Front of the rev O board with the four screens fitted"><br><sub>Front, with the four screens (KiCad render)</sub></td>
+<td align="center"><img src="docs/media/board-back-full.png" width="420" alt="Back of the rev O board"><br><sub>Back, the side the acrylic shows (KiCad render)</sub></td>
+</tr>
+</table>
 
 The board is two layers, 74 x 74 mm. The screens plug into sockets on the
 front; everything else is on the back. Surface-mount parts are all on one side
@@ -66,7 +71,12 @@ purpose: through the acrylic back they read as a colour-band ladder.
 
 ## Case
 
-![The acrylic back, engraved on the inside face](docs/media/still-acrylic-engraving.png)
+<table>
+<tr>
+<td align="center"><img src="docs/media/still-acrylic-engraving.png" width="420" alt="The acrylic back, engraved on the inside face"><br><sub>The acrylic back, engraved on the inside face</sub></td>
+<td align="center"><img src="docs/media/still-screens-on.png" width="420" alt="The screens lit with the clock face"><br><sub>The screens lit with the clock face</sub></td>
+</tr>
+</table>
 
 Front to back: a printed shell with a pocket for each screen, a two-piece
 retainer that holds the screens flat against the glass, the board on the
@@ -80,8 +90,6 @@ orientation, and the cutter notes; [`docs/BUILD.md`](docs/BUILD.md) has the
 assembly order.
 
 ## Firmware
-
-![The screens lit with the clock face](docs/media/still-screens-on.png)
 
 ### Buttons
 
@@ -285,18 +293,24 @@ OTA updates go to host `foursquare-revo` with `espota.py -a <your OTA password>`
 
 ## Photos
 
-| | |
-|---|---|
-| ![Front](docs/media/4square-front.jpg) | ![The board in the case, back off](docs/media/4square-board-in-case.jpg) |
-| The finished clock | The rev O board seated in the case, back removed |
-| ![At night](docs/media/4square-night.jpg) | ![On the desk](docs/media/4square-desk.jpg) |
-| Dimmed for the night window | On the desk |
-| ![Front of the board](docs/media/board-render-front.png) | ![Assembled render](docs/media/still-assembled.png) |
-| The board with its four screens (KiCad render) | The assembled case (render) |
-| ![Market page](docs/media/4square-market-page.jpg) | ![Screw close-up](docs/media/still-screw-closeup.png) |
-| The market ticker page from the earlier firmware, since replaced by the stopwatch | One of the four M3 x 16 self-tapping screws (render) |
-| ![Prototype](docs/media/prototype-cube.jpg) | ![Perfboard prototype](docs/media/prototype-perfboard.jpg) |
-| The first prototype, before the custom board | The hand-wired perfboard version |
+<table>
+<tr>
+<td align="center"><img src="docs/media/4square-board-in-case.jpg" width="420" alt="The board in the case, back off"><br><sub>The rev O board seated in the case, back removed</sub></td>
+<td align="center"><img src="docs/media/still-assembled.png" width="420" alt="Assembled render"><br><sub>The assembled case (render)</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/media/4square-night.jpg" width="420" alt="At night"><br><sub>Dimmed for the night window</sub></td>
+<td align="center"><img src="docs/media/4square-desk.jpg" width="420" alt="On the desk"><br><sub>On the desk</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/media/4square-market-page.jpg" width="420" alt="Market page"><br><sub>The market ticker page from the earlier firmware, since replaced by the stopwatch</sub></td>
+<td align="center"><img src="docs/media/still-screw-closeup.png" width="420" alt="Screw close-up"><br><sub>One of the four M3 x 16 self-tapping screws (render)</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/media/prototype-cube.jpg" width="420" alt="Prototype"><br><sub>The first prototype, before the custom board</sub></td>
+<td align="center"><img src="docs/media/prototype-perfboard.jpg" width="420" alt="Perfboard prototype"><br><sub>The hand-wired perfboard version</sub></td>
+</tr>
+</table>
 
 An MP4 of the exploded view is at
 [`docs/media/4square-exploded.mp4`](docs/media/4square-exploded.mp4).
