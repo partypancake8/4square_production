@@ -7,7 +7,7 @@ parts is soldered by hand afterwards.
 
 Rev O is the board that was ordered and built (10 bare boards plus 10 assembled,
 July 2026). It passed KiCad DRC with 0 violations and 0 unconnected items at
-JLCPCB's real limits.
+JLCPCB's manufacturing limits.
 
 > The front silkscreen still reads "REV N - KIT EDITION". The back reads
 > "4square REV O". Rev O is rev N with the RTC swapped to the SO-8 DS3231MZ, the

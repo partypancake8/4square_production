@@ -149,7 +149,7 @@ in six ways:
     DEMO=1 tools/layoutcheck/build.sh     # demo build's screens
 
 It compiles the firmware's own `faces.cpp`, `pages.cpp`, `anim.cpp` and
-`defaults.cpp` on your PC against the real Adafruit_GFX library and renders
+`defaults.cpp` on your PC against the Adafruit_GFX library and renders
 every screen the firmware can draw (about 244,000 of them, including every
 stopwatch reading). It fails if any pixel is claimed by two elements, if any ink
 falls outside the safe area `x[6..121] y[6..57]` that the pixel shift needs, or
