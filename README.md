@@ -1,6 +1,6 @@
 # 4square
 
-<p align="center"><img src="docs/media/4square-front.jpg" width="520" alt="4square on a desk"></p>
+<p align="center"><img src="docs/media/4square-front.jpg" width="760" alt="The 4square clock in its black case on a desk, beside a keyboard"></p>
 
 <p align="center"><a href="docs/media/4square-exploded.gif"><img src="docs/media/4square-exploded-640.gif" width="760" alt="Exploded view of the 4square case"></a></p>
 
