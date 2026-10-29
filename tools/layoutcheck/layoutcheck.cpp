@@ -1,4 +1,4 @@
-// layoutcheck — prove, pixel by pixel, that nothing on any screen overlaps
+// layoutcheck, prove, pixel by pixel, that nothing on any screen overlaps
 // anything else on that screen, and that everything stays inside the area the
 // anti-burn-in shift is allowed to move it around in.
 //
@@ -15,7 +15,7 @@
 // comes out is N disjoint-by-construction bitmaps whose pairwise AND is the
 // overlap, exactly and with coordinates.
 //
-// It compiles faces.cpp and ui_render.cpp — THE SOURCE THAT SHIPS — against the
+// It compiles faces.cpp and ui_render.cpp, THE SOURCE THAT SHIPS, against the
 // real Adafruit_GFX and the real 5x7 font. Nothing about the geometry is
 // reimplemented here, so a pass is a statement about the device and not about
 // a model of it.
@@ -73,7 +73,7 @@ static std::vector<Failure> failures, warnings;
 static long n_cases = 0, n_frames_dumped = 0;
 
 // ---- burn-in budgets, and where each number comes from ---------------------
-// FILL_BUDGET_PCT is Wear OS WO-P7 (see judge() case 4) — an external, cited,
+// FILL_BUDGET_PCT is Wear OS WO-P7 (see judge() case 4), an external, cited,
 // enforced number, not a house rule.
 // SHIFT_AMP_UNDER_TEST is the shipping default in defaults.cpp; the gate proves
 // the setting the device actually runs, not the best one available.
@@ -84,7 +84,7 @@ static const double FILL_BUDGET_PCT       = 15.0;
 static const int    SHIFT_AMP_UNDER_TEST  = 6;
 static const double RELIEF_FLOOR          = 1.10;
 // The debt this gate inherited, measured 2026-08-11 on firmware C. These are
-// NOT approvals — they are the high-water mark that must never rise. Lower
+// NOT approvals, they are the high-water mark that must never rise. Lower
 // them whenever a layout change pays some of it back.
 // PAID DOWN 2026-08-19, from 109 screens / 23.2%, by naming the style in the
 // clock page's label: the whole of that "debt" was the opt-in stops of the
@@ -95,7 +95,7 @@ static const double RELIEF_FLOOR          = 1.10;
 //
 // Held at 16 / 15.5 rather than 0 / 15.0 ONLY because the markets page is
 // being rewritten in parallel as this lands and its final fill is not yet
-// known. TAKE THESE TO 0 AND 15.0 once that settles — the gate is worth more
+// known. TAKE THESE TO 0 AND 15.0 once that settles, the gate is worth more
 // with no slack in it.
 static const long   DEBT_SCREENS_MAX      = 16;
 static const double DEBT_WORST_PCT        = 15.5;
@@ -139,7 +139,7 @@ static void dump_frame(const std::string &label, const Bits &composite) {
 }
 
 // Dilate by one pixel in the four cardinal directions. Used for the
-// "uncomfortably close" warning — elements that do not overlap but sit with no
+// "uncomfortably close" warning, elements that do not overlap but sit with no
 // gap at all read as one smudged blob on a 128x64 panel.
 static Bits dilate(const Bits &b) {
   Bits o(b.size(), 0);
@@ -163,7 +163,7 @@ static void judge(const std::string &kase, bool dump) {
   for (const Elem &e : g_elems)
     for (size_t i = 0; i < composite.size(); i++) composite[i] |= e.bits[i];
 
-  // 1. OVERLAP — the headline check. Any pixel claimed by two elements.
+  // 1. OVERLAP, the headline check. Any pixel claimed by two elements.
   for (size_t i = 0; i < g_elems.size(); i++)
     for (size_t j = i + 1; j < g_elems.size(); j++) {
       int count = 0, fx = -1, fy = -1;
@@ -182,7 +182,7 @@ static void judge(const std::string &kase, bool dump) {
       }
     }
 
-  // 2. SAFE AREA — ink outside it is clipped once the burn-in shift wanders,
+  // 2. SAFE AREA, ink outside it is clipped once the burn-in shift wanders,
   //    which on a bench at shift (0,0) looks perfect and fails weeks later.
   int out = 0, ox = -1, oy = -1;
   for (int y = 0; y < SCR_H; y++)
@@ -200,7 +200,7 @@ static void judge(const std::string &kase, bool dump) {
     failures.push_back({kase, d});
   }
 
-  // 3. CROWDING — a warning, not a failure.
+  // 3. CROWDING, a warning, not a failure.
   for (size_t i = 0; i < g_elems.size(); i++) {
     Bits di = dilate(g_elems[i].bits);
     for (size_t j = i + 1; j < g_elems.size(); j++) {
@@ -216,7 +216,7 @@ static void judge(const std::string &kase, bool dump) {
     }
   }
 
-  // 4. FILL FACTOR — burn-in policy, and now a HARD GATE at the only published
+  // 4. FILL FACTOR, burn-in policy, and now a HARD GATE at the only published
   //    number anybody actually enforces. Wear OS quality requirement WO-P7
   //    caps an always-on watch face at 15% lit pixels, sampled across a whole
   //    day, EVERY sample passing; Google's always-on docs put the same rule as
@@ -227,7 +227,7 @@ static void judge(const std::string &kase, bool dump) {
   //      salvage/10-oled-inversion-abl-aod.md section 3
   //
   //    TWO TIERS, DELIBERATELY. Blowing the budget is a FAILURE on the faces
-  //    the device ships on, and a WARNING on FILLED — because FILLED is a
+  //    the device ships on, and a WARNING on FILLED, because FILLED is a
   //    style the USER chose, and a prover does not get to overrule that. What
   //    it does get to do is refuse to let it happen by accident somewhere else.
   //    FILLED measures up to 23.3% against a 15% budget, which is a real
@@ -251,7 +251,7 @@ static void judge(const std::string &kase, bool dump) {
   // DATASHEET, QUIET, ROUNDEL and CAPSULE are stops 3 to 7 of the MODE cycle;
   // the device powers on at stop 1, OUTLINE, and nothing reaches a theme
   // except a button press. So they are measured and reported and not gated,
-  // which is the policy already stated above rather than a new one — the
+  // which is the policy already stated above rather than a new one, the
   // classification is by HOW THE SCREEN IS REACHED, and adding a look to the
   // cycle does not change how the DEFAULT is reached. What must not happen is
   // this list quietly growing to cover the default itself; OUTLINE is absent
@@ -283,10 +283,10 @@ static void judge(const std::string &kase, bool dump) {
     if (ff > fill_max) { fill_max = ff; fill_worst = kase; }
     if (ff > FILL_BUDGET_PCT) {
       char d[160];
-      snprintf(d, sizeof d, "FILL %.1f%% (%d px) — over the %.0f%% always-on budget (Wear OS WO-P7)",
+      snprintf(d, sizeof d, "FILL %.1f%% (%d px), over the %.0f%% always-on budget (Wear OS WO-P7)",
                ff, lit, FILL_BUDGET_PCT);
       // A RATCHET, NOT A CLIFF. This budget arrived after the layouts did, and
-      // 109 default-style screens are already over it — mostly the CLOCK v5
+      // 109 default-style screens are already over it, mostly the CLOCK v5
       // page. Failing all of them would just mean the gate gets switched off,
       // which is how a real gate becomes a comment. So the existing overage is
       // recorded as DEBT and the gate fails only if the debt GROWS: more
@@ -299,7 +299,7 @@ static void judge(const std::string &kase, bool dump) {
     }
   }
 
-  // 5. SHIFT RELIEF — does the anti-burn-in wander actually buy anything on
+  // 5. SHIFT RELIEF, does the anti-burn-in wander actually buy anything on
   //    THIS screen? firmware B shipped shift_amp = 2, and +/-2 relieves
   //    precisely nothing: an envelope narrower than the glyph stroke cannot
   //    move a stroke off a pixel in its own interior. That was invisible for
@@ -307,7 +307,7 @@ static void judge(const std::string &kase, bool dump) {
   //
   //    Because the shift is a Hamiltonian tour (display.cpp), residency over
   //    the (2A+1)^2 offsets is EXACTLY uniform, so a pixel's duty is just the
-  //    fraction of offsets that put ink on it — a uniform box sum of the
+  //    fraction of offsets that put ink on it, a uniform box sum of the
   //    composite, which an integral image gives us in O(W*H) per screen.
   //    d_max is the worst pixel's duty; 1/d_max is its life multiplier.
   //      salvage/09-oled-burnin-techniques.md section 3.1
@@ -343,7 +343,7 @@ static void judge(const std::string &kase, bool dump) {
     if (mult < RELIEF_FLOOR && !transient && !user_chose_it) {
       char d[200];
       snprintf(d, sizeof d,
-               "SHIFT RELIEF %.2fx at +/-%d (peak duty %.3f) — below the %.2fx floor; "
+               "SHIFT RELIEF %.2fx at +/-%d (peak duty %.3f), below the %.2fx floor; "
                "the envelope is narrower than this screen's stroke",
                mult, A, dmax, RELIEF_FLOOR);
       failures.push_back({kase, d});
@@ -378,12 +378,12 @@ static FaceData base_data() {
 }
 
 // ===========================================================================
-// THE FRAME-SEQUENCE LAWS — AN ANIMATION MAY NOT SKIP
+// THE FRAME-SEQUENCE LAWS, AN ANIMATION MAY NOT SKIP
 // ===========================================================================
 // WHY THIS EXISTS, IN ONE PARAGRAPH. heartFrames was declared [28][288] with 27
 // initialisers. C++ zero-fills the rest, so heartFrames[27] was 288 bytes of
 // nothing, anim_count(AN_HEART) went on saying 28, and anim_draw's `tick % n`
-// reached it once every 28 frames — every 3.5 s at 8 fps — rendering the heart
+// reached it once every 28 frames, every 3.5 s at 8 fps, rendering the heart
 // as an empty panel for one frame and bringing it back the next. The user
 // reported it as "sometimes skips a frame".
 //
@@ -397,7 +397,7 @@ static FaceData base_data() {
 //              anim_blank_ok() declares that the animation wants a blank one.
 //              Nothing declares it. This is the law that catches the heart.
 //   COUNT      the frame count the firmware reports matches the count this
-//              file expects — read from outside anim.cpp's translation unit,
+//              file expects, read from outside anim.cpp's translation unit,
 //              so it is a second reading of the same fact rather than a
 //              restatement of the static_assert next to the data.
 //   PERIOD     anim_cycle_exact(id) is checked, not believed: frame t and
@@ -405,8 +405,8 @@ static FaceData base_data() {
 //              in the cycle. A reel that trusts a wrong period cuts a beat.
 //   CONTINUITY the change in lit pixels across the WRAP is no larger than the
 //              largest change anywhere MID-cycle. A loop that jumps at the
-//              seam is the same family of defect as one that goes blank —
-//              a frame the eye reads as missing — and it is the one a blank
+//              seam is the same family of defect as one that goes blank  - 
+//              a frame the eye reads as missing, and it is the one a blank
 //              check alone would not see.
 //
 // And judge() runs on every frame too, over the WHOLE cycle rather than the
@@ -452,7 +452,7 @@ static size_t anim_sequence_law(uint8_t id, AnimRender ren, const char *tag,
   const uint16_t cyc = anim_cycle(id);
   if (cyc == 0) {
     failures.push_back({std::string(tag) + " " + anim_name(id),
-                        "CYCLE 0 — the reel would divide by it"});
+                        "CYCLE 0, the reel would divide by it"});
     return failures.size() - f0;
   }
 
@@ -467,7 +467,7 @@ static size_t anim_sequence_law(uint8_t id, AnimRender ren, const char *tag,
     canvas.fillScreen(0);
     ren(canvas, id, t);
     // Read the pixel count BEFORE flush_current() lifts the elements out and
-    // wipes the canvas — after that the evidence is in g_elems, not here.
+    // wipes the canvas, after that the evidence is in g_elems, not here.
     lit[t] = anim_lit(canvas);
     flush_current();
     if (with_judge) { judge(kase, false); n_anim_frames++; }
@@ -476,7 +476,7 @@ static size_t anim_sequence_law(uint8_t id, AnimRender ren, const char *tag,
     if (lit[t] == 0 && !anim_blank_ok(id)) {
       char det[256];
       snprintf(det, sizeof det,
-               "BLANK FRAME — %s frame %u of %u lights zero pixels. On the "
+               "BLANK FRAME, %s frame %u of %u lights zero pixels. On the "
                "glass that is the animation vanishing for %u ms and coming "
                "back. If it is deliberate, say so in anim_blank_ok().",
                anim_name(id), (unsigned)t, (unsigned)cyc,
@@ -502,7 +502,7 @@ static size_t anim_sequence_law(uint8_t id, AnimRender ren, const char *tag,
         char kase[192], det[256];
         snprintf(kase, sizeof kase, "%s %s period", tag, anim_name(id));
         snprintf(det, sizeof det,
-                 "PERIOD WRONG — anim_cycle_exact() claims %s repeats every %u "
+                 "PERIOD WRONG, anim_cycle_exact() claims %s repeats every %u "
                  "frames, but frame %u and frame %u differ. A reel that trusts "
                  "it cuts the animation off mid-beat.",
                  anim_name(id), (unsigned)cyc, (unsigned)t,
@@ -518,7 +518,7 @@ static size_t anim_sequence_law(uint8_t id, AnimRender ren, const char *tag,
   // Only meaningful where the cycle IS the period. AN_EYES declares that its
   // returned length is a viewing length rather than a period (four blink
   // periods of 17/23/29/37 have no small common multiple), so it is exempt
-  // from this one and from PERIOD above — and that exemption is not free: it
+  // from this one and from PERIOD above, and that exemption is not free: it
   // is the reason anim_cycle_exact() exists as a separate, checked claim
   // rather than as a comment.
   if (cyc >= 3 && anim_cycle_exact(id)) {
@@ -534,7 +534,7 @@ static size_t anim_sequence_law(uint8_t id, AnimRender ren, const char *tag,
       char kase[192], det[320];
       snprintf(kase, sizeof kase, "%s %s wrap", tag, anim_name(id));
       snprintf(det, sizeof det,
-               "DISCONTINUOUS LOOP — %s changes by %d lit pixels across the "
+               "DISCONTINUOUS LOOP, %s changes by %d lit pixels across the "
                "wrap (frame %u -> frame 0) against a mid-cycle maximum of %d. "
                "The loop visibly jumps every %u frames.",
                anim_name(id), wrap, (unsigned)(cyc - 1), mid_max,
@@ -563,7 +563,7 @@ static void anim_draw_blank_plant(GFXcanvas1 &c, uint8_t id, uint16_t tick) {
 //
 // IT HAS TO RAMP, NOT SPIKE, and getting that wrong the first time is worth
 // recording. A single bad frame dropped into an otherwise steady animation
-// produces TWO equal changes — one going in, one coming out — so the wrap is
+// produces TWO equal changes, one going in, one coming out, so the wrap is
 // not an outlier against the mid-cycle maximum and the continuity law is
 // right not to fire on it. (The blank law catches that shape; they are
 // different defects and they have different detectors, which is the point of
@@ -582,7 +582,7 @@ static void check_anims() {
     if (anim_count(e.id) != e.frames) {
       char det[256];
       snprintf(det, sizeof det,
-               "FRAME COUNT — anim_count(%s) is %u, this file expects %u. The "
+               "FRAME COUNT, anim_count(%s) is %u, this file expects %u. The "
                "count and the initialiser list disagreed once before and the "
                "difference rendered as a blank frame every 3.5 s.",
                anim_name(e.id), (unsigned)anim_count(e.id),
@@ -612,7 +612,7 @@ static void check_anims() {
       if (seen[id] != 1) {
         char det[200];
         snprintf(det, sizeof det,
-                 "REEL NOT A PERMUTATION — %s appears %d times in anim_reel(); "
+                 "REEL NOT A PERMUTATION, %s appears %d times in anim_reel(); "
                  "the showcase would play it twice and skip another.",
                  anim_name(id), seen[id]);
         failures.push_back({"anim reel", det});
@@ -626,7 +626,7 @@ static void check_anims() {
     if (len == 0 || len > 6) {
       char det[200];
       snprintf(det, sizeof det,
-               "NAME LENGTH — \"%s\" is %zu characters; the reveal row's value "
+               "NAME LENGTH, \"%s\" is %zu characters; the reveal row's value "
                "column carries six before the fit starts cutting.", n, len);
       failures.push_back({std::string("anim name ") + n, det});
     }
@@ -634,7 +634,7 @@ static void check_anims() {
       if ((unsigned char)*p < 0x20 || (unsigned char)*p > 0x7E) {
         char det[200];
         snprintf(det, sizeof det,
-                 "NAME GLYPH — \"%s\" contains 0x%02X, which the fonts do not "
+                 "NAME GLYPH, \"%s\" contains 0x%02X, which the fonts do not "
                  "have; it would measure as nothing and draw as nothing.",
                  n, (unsigned)(unsigned char)*p);
         failures.push_back({std::string("anim name ") + n, det});
@@ -804,7 +804,7 @@ static_assert(720 >= SR_AT_HEART && 720 < SR_AT_BLANK,
 
 // ===================================================== THE FOOT-PLANT LAW ==
 // THE WALKER MAY NOT SKATE. The physics of a non-sliding walk: while a foot
-// is planted it stays at a FIXED x on the glass — the body translates over
+// is planted it stays at a FIXED x on the glass, the body translates over
 // it. The stride constant SR_STRIDE_PX in anim.h is a MEASUREMENT of this
 // artwork (a hybrid in-place cycle: the planted foot holds ~5 frames, then
 // sweeps back ~10 px over ~9), and this law is what keeps that measurement
@@ -812,8 +812,8 @@ static_assert(720 >= SR_AT_HEART && 720 < SR_AT_BLANK,
 // ground-contact foot in each, and fails if the planted foot moves more than
 // the artwork's own measured residual.
 //
-// The bound is 2 px — the edge-matched worst transition of this artwork at
-// stride 1 — a ratchet, not a taste number. It failed twice by eye before it
+// The bound is 2 px, the edge-matched worst transition of this artwork at
+// stride 1, a ratchet, not a taste number. It failed twice by eye before it
 // was measured (25 px/tick, then 8), which is why it is a law now.
 static const int FOOT_SLIDE_MAX_PX = 2;
 static long   n_footplant_pairs = 0;
@@ -823,7 +823,7 @@ typedef void (*PassRender)(GFXcanvas1 &c, uint8_t slot, uint16_t t, uint8_t v);
 static void pass_draw_real(GFXcanvas1 &c, uint8_t slot, uint16_t t, uint8_t v) {
   sr_pass_draw(c, slot, t, v);
 }
-// The plant: a renderer that skates — the whole sprite jumps +4 px on odd
+// The plant: a renderer that skates, the whole sprite jumps +4 px on odd
 // ticks. If the law cannot catch a 4 px slide it proves nothing.
 static GFXcanvas1 fp_scratch(SCR_W, SCR_H);
 static void pass_skate_plant(GFXcanvas1 &c, uint8_t slot, uint16_t t,
@@ -841,7 +841,7 @@ static void pass_skate_plant(GFXcanvas1 &c, uint8_t slot, uint16_t t,
 
 // Ground-contact foot edges: ink within 3 rows of the lowest lit row,
 // clustered into blobs (a gap of 3+ clear columns separates feet), reduced
-// to the blobs' left/right edges — the toe and heel, the stable landmarks.
+// to the blobs' left/right edges, the toe and heel, the stable landmarks.
 static void fp_foot_edges(GFXcanvas1 &c, std::vector<int> &edges) {
   edges.clear();
   int gy = -1;
@@ -874,7 +874,7 @@ static size_t footplant_law(uint8_t variant, PassRender ren, const char *tag,
   for (uint16_t t = 0; t < SR_PASS_TICKS; t++) {
     // Full visibility is the blank map's own signal: the one (slot, tick)
     // pair that PROMISES ink is the one where the whole sprite cell is on
-    // that panel. Clipped entry/exit strips and the bezel beat are skipped —
+    // that panel. Clipped entry/exit strips and the bezel beat are skipped  - 
     // partial artwork has no reliable feet to measure.
     int slot = -1;
     for (uint8_t s = 0; s < 4; s++)
@@ -901,7 +901,7 @@ static size_t footplant_law(uint8_t variant, PassRender ren, const char *tag,
         snprintf(kase, sizeof kase, "%s v%u tick=%u", tag, variant,
                  (unsigned)t);
         snprintf(det, sizeof det,
-                 "FOOT SLIDE — the planted foot moved %d px between ticks %u "
+                 "FOOT SLIDE, the planted foot moved %d px between ticks %u "
                  "and %u of pass variant %u, over the %d px the artwork's own "
                  "stance allows. Ground speed and gait have come unglued; see "
                  "WALKER_TEMPO / SR_STRIDE_PX in anim.h.",
@@ -955,7 +955,7 @@ static void check_showreel() {
 
   // ---- the walker segment, over ALL FOUR pass variants -------------------
   // The scheduler rolls (row, direction) at runtime, so no single schedule
-  // can be proven — the whole space it draws from is swept instead, exactly
+  // can be proven, the whole space it draws from is swept instead, exactly
   // the roster's arrangement: every variant, every slot, every tick of the
   // segment through judge().
   for (uint8_t v = 0; v < 4; v++)
@@ -1276,8 +1276,8 @@ static bool selftest() {
   // reproduces went out on hardware and was reported by the user. heartFrames
   // was [28][288] with 27 initialisers; C++ zero-filled the 28th and the heart
   // rendered as an empty panel once every 3.5 seconds. Every other law in this
-  // file was green through it — a blank canvas has no overlap, nothing outside
-  // the safe area and the best fill factor available — so a law that only ever
+  // file was green through it, a blank canvas has no overlap, nothing outside
+  // the safe area and the best fill factor available, so a law that only ever
   // passed would look exactly like this one does now.
   //
   // So: run the real law over a renderer that blanks the last frame of the
@@ -1327,7 +1327,7 @@ static bool selftest() {
 
   // ---- and the SHOWREEL's blank law, planted the same way ------------------
   // The reel's blank law consults a per-(slot,tick) map instead of the
-  // per-animation predicate, which makes it a NEW code path — and a law that
+  // per-animation predicate, which makes it a NEW code path, and a law that
   // has never been seen to fire proves nothing. So: render the reel with one
   // undeclared frame blanked, require the law to catch it, then require it
   // silent on the real renderer.
@@ -1359,7 +1359,7 @@ static bool selftest() {
 
   // ---- and the FOOT-PLANT law, planted with a skater -----------------------
   // The stride constant was wrong twice before it was measured, both times
-  // past every other law in this file — nothing here looks at MOTION. So the
+  // past every other law in this file, nothing here looks at MOTION. So the
   // new law gets the same treatment as the rest: a renderer whose sprite
   // jumps 4 px on odd ticks must be caught, and the shipping renderer must
   // stay quiet at the artwork's own measured bound.
@@ -1443,7 +1443,7 @@ static void check_pages() {
         d.sens.contrast = (uint8_t)((i * 255) / 47);
         d.sens.light_pct= (uint8_t)((i * 100) / 47);
         d.sens.temp_c10 = (int16_t)(-400 + i * 30);
-        // 1 s, then minutes, hours, days, and a year — every place the format
+        // 1 s, then minutes, hours, days, and a year, every place the format
         // switches shape or grows a digit.
         static const uint32_t UPS[] = {0, 59, 60, 3599, 3600, 86399, 86400,
                                        9 * 86400, 99 * 86400, 400 * 86400};
@@ -1626,8 +1626,8 @@ static void check_pages() {
                  var, style_name(CLOCK_STYLES[var % CLOCK_STYLE_N]), slot, v);
         // ONE FRAME PER STOP PER PANEL ON THE CONTACT SHEET. The face sweep
         // above dumps the six original glyph styles but never the INVERTED
-        // half of the cycle — the invert is a bit on the style and that loop
-        // walks bare styles — so half the MODE cycle was proven and none of it
+        // half of the cycle, the invert is a bit on the style and that loop
+        // walks bare styles, so half the MODE cycle was proven and none of it
         // was ever looked at. Every stop the button can reach now appears on
         // the sheet. v=38 for the same reason the face sweep picks it: a
         // two-digit value in every field.
@@ -1651,14 +1651,14 @@ int main(int argc, char **argv) {
 
   // ---- every clock face, over its entire value domain --------------------
   // Exhaustive, not sampled. The domains are small enough that there is no
-  // reason to guess which value is the worst case — and the worst case is
+  // reason to guess which value is the worst case, and the worst case is
   // rarely the one you would guess (it is usually a width change, like the
   // minute going from 9 to 10, or SEVENTEEN being nine characters).
   //
   // AND EVERY MODIFIER BIT, NOT JUST THE BARE STYLE. A style byte carries two
-  // flags on top of its enum value — S_HOLLOW (swap the display tier for its
+  // flags on top of its enum value, S_HOLLOW (swap the display tier for its
   // outline cut) and S_INVERT (composite the element as a negative inside a
-  // lit chip) — and this sweep used to walk neither. That was survivable only
+  // lit chip), and this sweep used to walk neither. That was survivable only
   // while CLOCK_STYLES[] happened to contain every combination anybody could
   // reach, and it stopped being true the moment the MODE cycle was re-cut:
   // the inverted stops came out of the table and instantly had NOTHING
@@ -1741,7 +1741,7 @@ int main(int argc, char **argv) {
 
   check_pages();
 
-  // EVERY frame of EVERY animation, over its whole cycle — which for the
+  // EVERY frame of EVERY animation, over its whole cycle, which for the
   // walker is 868 ticks, far past where the page sweep above stops.
   check_anims();
 
@@ -1793,7 +1793,7 @@ int main(int argc, char **argv) {
          n_budget_cases ? fill_sum / n_budget_cases : 0.0, fill_max, FILL_BUDGET_PCT,
          fill_worst.empty() ? "" : fill_worst.c_str());
   if (fill_over_optin)
-    printf("                    %ld opt-in style / animation frames over budget — warned, not blocked\n",
+    printf("                    %ld opt-in style / animation frames over budget, warned, not blocked\n",
            fill_over_optin);
   if (n_over_budget)
     printf("                    %ld DEFAULT-STYLE screens over budget, worst %.1f%% (debt, ratcheted)\n",
@@ -1812,7 +1812,7 @@ int main(int argc, char **argv) {
          relief_min > 1e8 ? 0.0 : relief_min, SHIFT_AMP_UNDER_TEST, RELIEF_FLOOR,
          relief_worst.empty() ? "" : relief_worst.c_str());
 
-  // Collapse identical detail strings — one geometry bug shows up in hundreds
+  // Collapse identical detail strings, one geometry bug shows up in hundreds
   // of value cases and a wall of duplicates hides the second bug.
   auto summarise = [](std::vector<Failure> &v, const char *title) {
     if (v.empty()) return;
@@ -1850,10 +1850,10 @@ int main(int argc, char **argv) {
 
   printf("\n");
   if (failures.empty()) {
-    printf("  RESULT: PASS — no screen has two things on the same pixel,\n");
+    printf("  RESULT: PASS, no screen has two things on the same pixel,\n");
     printf("          and nothing is drawn where the shift would clip it.\n");
   } else {
-    printf("  RESULT: FAIL — %zu findings above.\n", failures.size());
+    printf("  RESULT: FAIL, %zu findings above.\n", failures.size());
   }
   printf("=====================================================\n\n");
   return failures.empty() ? 0 : 1;

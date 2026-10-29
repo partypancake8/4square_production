@@ -1,7 +1,7 @@
 #include "leds.h"
 #include "../settings/store.h"
 #include "../board/bus.h"
-#include "../screens/display.h"        // disp_light_window — the LEDs and the panels must
+#include "../screens/display.h"        // disp_light_window, the LEDs and the panels must
                             // agree about how bright the room is
 #include <Adafruit_NeoPixel.h>
 
@@ -20,7 +20,7 @@ static const uint8_t TOP = 0, MID = 1, BOT = 2;
 struct Rgb { uint8_t r, g, b; };
 
 // ---- THE PALETTE, AND THE ONE COLOUR THAT IS NOT IN IT ----------------------
-// THERE IS NO GREEN. Not "green is used carefully" — there is no green
+// THERE IS NO GREEN. Not "green is used carefully", there is no green
 // constant, so no state can pick one and no transition can land on one.
 //
 // WHY. LED_CONFIRM was green and it was reached, in normal use, straight out of
@@ -33,7 +33,7 @@ struct Rgb { uint8_t r, g, b; };
 // Retiring the hue rather than the transition is deliberate: a rule about which
 // two colours may not be adjacent is a rule somebody has to remember, and this
 // file is full of evidence that those do not survive. A colour that does not
-// exist cannot come back by accident, and tools/ledcheck asserts it — no frame
+// exist cannot come back by accident, and tools/ledcheck asserts it, no frame
 // this file emits may be green-dominant, and no transition may put a blue or
 // cyan frame next to a green one.
 //
@@ -62,7 +62,7 @@ static uint32_t ota_progress_ms = 0;
 // of bit-banged WS2812 traffic and an interrupts-off window, to change
 // nothing. It also matters for the failsafe: "stop showing this" should stop
 // driving the strip, not keep driving it with zeros. And it is what lets the
-// light sample skip its blank entirely — see led_light_blank_begin().
+// light sample skip its blank entirely, see led_light_blank_begin().
 static bool     dark_latched = false;
 // The last frame actually pushed to the wire, per pixel. The light-sample blank
 // restores this so the animation is continuous across the ADC read; without it
@@ -96,7 +96,7 @@ uint32_t led_oneshot_ms(uint8_t s) {
 // The one-shots already end by construction. The HELD states did not, and
 // every one of them is asserted by a condition that can fail to clear:
 // LED_FAULT_I2C is held for as long as a panel is missing, LED_WIFI_JOINING
-// for as long as the join keeps failing — which on this board, with the RF
+// for as long as the join keeps failing, which on this board, with the RF
 // problem in design/ota-diagnosis.md, is indefinitely. The result was three
 // LEDs pulsing in a bedroom, all day, every day, reporting a fault the user
 // already knows about and cannot do anything about from across the room.
@@ -104,7 +104,7 @@ uint32_t led_oneshot_ms(uint8_t s) {
 // A fault indicator is a NOTIFICATION, not a status bar. It has done its job
 // once it has been seen; after that it is just light. So each held state gets
 // a budget, and when it lapses the state stops being rendered even though it
-// is still asserted — `led_status_lapsed()` and the serial report still tell
+// is still asserted, `led_status_lapsed()` and the serial report still tell
 // you it is there.
 //
 // It is deliberately NOT a reset of held[]: held_since is stamped only on the
@@ -117,7 +117,7 @@ uint32_t led_hold_max_ms(uint8_t s) {
     // a router reboot, and past that the answer is not going to change.
     case LED_WIFI_JOINING: return 180000UL;      // 3 min
     case LED_WIFI_FAIL:    return 300000UL;      // 5 min
-    // A bus fault or a dead RTC is worth a long, obvious complaint — but not a
+    // A bus fault or a dead RTC is worth a long, obvious complaint, but not a
     // permanent one. Ten minutes is far past "did I notice it".
     case LED_FAULT_I2C:    return 600000UL;      // 10 min
     case LED_RTC_UNSET:    return 600000UL;      // 10 min
@@ -242,7 +242,7 @@ void led_report() {
 //
 // The property that earns its keep is not that it is curved, it is that the
 // slope is ZERO AT BOTH ENDS. Every shape below is built out of it, so every
-// shape starts and stops without a corner — and a corner is precisely what the
+// shape starts and stops without a corner, and a corner is precisely what the
 // eye reads as a click. The old g_breathe was a triangle and its own comment
 // admitted it: "a shape nobody can tell apart from this one at 60 fps". That
 // was wrong twice over. There is a visible crease at the top and bottom of
@@ -261,7 +261,7 @@ static uint8_t ramp(uint32_t t, uint32_t dur) {
   return ease((uint16_t)(t * 255 / dur));
 }
 
-// Rise, hold, fall — the shape almost everything here is made of. Zero at t=0
+// Rise, hold, fall, the shape almost everything here is made of. Zero at t=0
 // and zero again at rise+hold+fall, which is what makes bumps safe to butt up
 // against each other and safe to loop.
 static uint8_t bump(uint32_t t, uint32_t rise, uint32_t hold, uint32_t fall) {
@@ -296,7 +296,7 @@ typedef uint8_t Level3[3];
 static void g_solid(Level3 out, uint8_t v) { out[0] = out[1] = out[2] = v; }
 
 // A slow swell and fade, all three together. FOR: waiting. Nothing is counting
-// and nothing is travelling, because nothing is progressing — the setup AP sits
+// and nothing is travelling, because nothing is progressing, the setup AP sits
 // like this for minutes while somebody types on a phone.
 static void g_breathe(Level3 out, uint32_t t, uint16_t period,
                       uint8_t lo, uint8_t hi) {
@@ -309,7 +309,7 @@ static void g_breathe(Level3 out, uint32_t t, uint16_t period,
 
 // n soft pulses, then a long dark gap. FOR: counting. You can read "two" across
 // a room in a way you cannot read "amber rather than orange". Eased edges do
-// not hurt the count — the gap between pulses is what carries it.
+// not hurt the count, the gap between pulses is what carries it.
 static void g_group(Level3 out, uint32_t t, uint8_t n) {
   const uint16_t RISE = 90, HOLD = 90, FALL = 130, GAP = 240, TAIL = 1200;
   const uint32_t SLOT = (uint32_t)RISE + HOLD + FALL + GAP;
@@ -325,7 +325,7 @@ static void g_group(Level3 out, uint32_t t, uint8_t n) {
 // BOTTOM, so pos falls as the glow rises.
 //
 // The track runs from 832 (below the bottom LED, fully dark) to -480 (above the
-// top one, also fully dark) — 1312 units. Both ends being dark is what makes a
+// top one, also fully dark), 1312 units. Both ends being dark is what makes a
 // looped version continuous: the wrap happens in the dark, so there is nothing
 // to jump. The old three-position comet stepped 0/60/255 and wrapped from a lit
 // pixel straight to another lit pixel.
@@ -341,7 +341,7 @@ static void g_travel(Level3 out, int32_t pos) {
   }
 }
 
-// The travelling glow, looped. FOR: "working on it" — a join in progress.
+// The travelling glow, looped. FOR: "working on it", a join in progress.
 static void g_comet(Level3 out, uint32_t t, uint16_t period) {
   uint32_t p = t % period;
   g_travel(out, TRACK_HI - (int32_t)((uint32_t)p * (TRACK_HI - TRACK_LO) / period));
@@ -354,7 +354,7 @@ static void g_rise(Level3 out, uint32_t t, uint16_t dur) {
   g_travel(out, TRACK_HI - (int32_t)((uint32_t)t * (TRACK_HI - TRACK_LO) / dur));
 }
 
-// Two soft thumps and then quiet — the shape of a nod. FOR: a setting was
+// Two soft thumps and then quiet, the shape of a nod. FOR: a setting was
 // SAVED. This replaces a literal 0/255 square wave (two hard flashes of green),
 // which is the single ugliest thing this file used to do and the one the user
 // saw most often.
@@ -366,12 +366,12 @@ static void g_heartbeat(Level3 out, uint32_t t) {
 }
 
 // A shallow, very slow glow that never fully lights and never fully darkens.
-// FOR: "you are in the menus" — present without nagging. A sticky state is
+// FOR: "you are in the menus", present without nagging. A sticky state is
 // something you are meant to notice once, not something you should be able to
 // watch.
 static void g_ember(Level3 out, uint32_t t) { g_breathe(out, t, 4200, 26, 74); }
 
-// Three decaying bumps, close together. FOR: refusal — "that input did
+// Three decaying bumps, close together. FOR: refusal, "that input did
 // nothing". A refusal should feel like a bump you walked into, not an alarm, so
 // it is short, it fades out rather than stopping, and it never reaches full.
 static void g_shiver(Level3 out, uint32_t t) {
@@ -383,7 +383,7 @@ static void g_shiver(Level3 out, uint32_t t) {
 }
 
 // A wave washing up the column, forever, never dark. FOR: "which one is this
-// device" — unmistakable at a glance and, because it never goes out, impossible
+// device", unmistakable at a glance and, because it never goes out, impossible
 // to confuse with any of the fault gaits, which all count.
 static void g_ripple(Level3 out, uint32_t t, uint16_t period) {
   uint32_t p = t % period;
@@ -433,8 +433,8 @@ static void g_wipe(Level3 out, uint32_t t, uint16_t per_px, uint16_t rise,
 }
 
 // A single LED, or all three, under a soft envelope. FOR: button feedback. The
-// POSITION is the acknowledgement — the button you pressed lights where that
-// button sits — so the envelope only has to keep it from being a step.
+// POSITION is the acknowledgement, the button you pressed lights where that
+// button sits, so the envelope only has to keep it from being a step.
 static void g_spot(Level3 out, int which, uint8_t v, uint32_t t) {
   uint8_t e = bump(t, RAMP_MIN_MS, 60, 150);        // 300 ms, = its one-shot
   uint8_t lvl = (uint8_t)((uint16_t)v * e / 255);
@@ -546,8 +546,8 @@ static void render(uint8_t s, uint32_t age, Level3 lv, Rgb &col) {
 // is not allowed to produce. Dipping also gives each state a clean entrance,
 // which is what makes the column's movement legible.
 //
-// The outgoing frame is FROZEN at the moment of the switch — its gait stops
-// advancing — so only one animation is ever being evaluated. The incoming one
+// The outgoing frame is FROZEN at the moment of the switch, its gait stops
+// advancing, so only one animation is ever being evaluated. The incoming one
 // keeps running under the fade, so a state does not appear to start late.
 static const uint16_t XF_OUT_MS = 110;   // both >= RAMP_MIN_MS
 static const uint16_t XF_IN_MS  = 150;
@@ -565,7 +565,7 @@ void led_tick(uint32_t now, uint16_t ambient_raw, bool night) {
   // config.h asks for 60 fps and loop() honours that only when it has nothing
   // else to do. On the animation page ui_paint() blocks for ~92 ms pushing four
   // 1 KB frames at 400 kHz, so led_tick lands nearer 10 Hz, unevenly. Nothing
-  // above depends on the rate — the gaits are functions of `now` — but the
+  // above depends on the rate, the gaits are functions of `now`, but the
   // dither below does, so it needs the truth and not the intention.
   static uint32_t last_tick = 0;
   static uint32_t dt_ema_q4 = (uint32_t)LED_FRAME_MS << 4;
@@ -637,7 +637,7 @@ void led_tick(uint32_t now, uint16_t ambient_raw, bool night) {
   // Ambient: a dim glow in the dark, full in a lit room. The SAME window the
   // screens dim against, sensitivity included, so the LEDs and the panels
   // agree about the room. This used to inline LIGHT_RAW_LO/HI, which was a
-  // second copy of the curve's endpoints — correct only for as long as nothing
+  // second copy of the curve's endpoints, correct only for as long as nothing
   // could move them, which the sensitivity setting now can.
   uint16_t wlo, whi;
   disp_light_window(wlo, whi);
@@ -661,7 +661,7 @@ void led_tick(uint32_t now, uint16_t ambient_raw, bool night) {
   // next frame and the steps become a ramp. THAT IS A 60 fps MECHANISM. At the
   // ~10 Hz the animation page really delivers, "the next frame" is 100 ms away
   // and the carry stops being a ramp and becomes a 10 Hz square wave on the
-  // bottom bit — the smoothing mechanism generating exactly the flicker it
+  // bottom bit, the smoothing mechanism generating exactly the flicker it
   // exists to remove. So it is gated on the MEASURED interval, and above two
   // design frames it degrades to plain rounding, which at that rate is strictly
   // better: a constant input then produces a constant output.
@@ -671,7 +671,7 @@ void led_tick(uint32_t now, uint16_t ambient_raw, bool night) {
     uint8_t l = (i < N_LEDS_FITTED) ? lv[i] : 0;
     // Fold the gamma scalar down to 8 bits FIRST. The one-expression form
     // peaked at 255 * 255 * 65535 = 4,261,413,375 against a uint32 ceiling of
-    // 4,294,967,295 — it did not overflow, but 0.8% of headroom on a value
+    // 4,294,967,295, it did not overflow, but 0.8% of headroom on a value
     // three future edits could raise is not a margin, it is a trap. Folded, the
     // worst case is 255 * 255 * 256 = 16,646,400, which is 258x of headroom;
     // tools/ledcheck asserts that margin so a future edit cannot quietly eat it.
@@ -704,7 +704,7 @@ void led_tick(uint32_t now, uint16_t ambient_raw, bool night) {
 // The ramp is BLOCKING, like the 25 ms settle it brackets, because there is no
 // other loop to run it on and adding a task would put a second writer on the
 // RMT channel. It costs 2 * LED_BLANK_RAMP_MS, and sensors.cpp only pays it
-// when the strip is actually lit — which, since IDLE IS DARK, is rare, and it
+// when the strip is actually lit, which, since IDLE IS DARK, is rare, and it
 // rate-limits the lit case besides.
 static void blank_step(uint8_t k) {
   for (uint8_t i = 0; i < N_LEDS; i++)

@@ -3,7 +3,7 @@
 //
 // WHY THIS IS A SHIM AND NOT A REIMPLEMENTATION. The whole value of the layout
 // prover is that it exercises the exact source that ships. Anything reimplemented
-// here is something the prover could be wrong about — so this file contains no
+// here is something the prover could be wrong about, so this file contains no
 // drawing code, no font, and no geometry. It provides Print (so GFX can inherit
 // from it), the PROGMEM macros (so the font tables read correctly) and nothing
 // else. Adafruit_GFX.cpp and glcdfont.c are compiled from the library the device
@@ -39,7 +39,7 @@ public:
 };
 
 // Templates, NOT the macros the real Arduino.h uses. As macros these collide
-// head-on with <algorithm> and <vector>, which the prover needs — and the
+// head-on with <algorithm> and <vector>, which the prover needs, and the
 // three-argument std::min is a compile error rather than a subtle one, so this
 // is a straight substitution with no behavioural difference for GFX's use.
 template <typename T> static inline T min(T a, T b) { return a < b ? a : b; }

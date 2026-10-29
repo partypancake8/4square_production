@@ -1,4 +1,4 @@
-// defaults.cpp — the factory settings, kept PURE and separate.
+// defaults.cpp, the factory settings, kept PURE and separate.
 //
 // This is in its own translation unit so the host-side layout prover can link
 // it without pulling in Wire and the rest of store.cpp. The defaults are also
@@ -25,7 +25,7 @@ void settings_defaults(Settings &s) {
   // segment-current control and OLED lifetime goes as roughly J^-1.4, so the
   // cap IS the lifetime knob, not a comfort setting.
   s.bright_day   = 140;
-  // 30, not 1. 1 is technically visible and practically a black screen —
+  // 30, not 1. 1 is technically visible and practically a black screen  - 
   // "make it a little brighter at lower light intensities".
   s.bright_night = 30;
   s.autodim      = 1;
@@ -45,8 +45,8 @@ void settings_defaults(Settings &s) {
   s.wifi_on      = 1;
 #ifdef DEMO_BUILD
   // A DEMO UNIT SHIPS IN FAHRENHEIT, BRIGHT, AND WITH NO RADIO. The reasoning
-  // for each — including why the brightness number is a deliberate panel-
-  // lifetime trade that must NOT be copied back into the shipping defaults —
+  // for each, including why the brightness number is a deliberate panel-
+  // lifetime trade that must NOT be copied back into the shipping defaults  - 
   // is in ../demo.h, the one file that defines what a demo build is.
   //
   // This branch only covers a board whose settings ring is blank or corrupt.
@@ -99,7 +99,7 @@ void demo_force(Settings &s) {
 // slot_widget, slot_style and slot_overlay are used directly as array indices
 // into the name tables and the render dispatch. A socketed chip that was never
 // programmed, a chip pulled from another project, or a record whose CRC
-// happens to pass on garbage would otherwise index off the end of a table —
+// happens to pass on garbage would otherwise index off the end of a table  - 
 // and on a C3 with no memory protection that is a silent corruption that
 // surfaces as an unrelated crash days later.
 //
@@ -145,7 +145,7 @@ void settings_sanitize(Settings &s) {
   if (s.off_end_h   > 23) s.off_end_h   = d.off_end_h;
   if (s.off_start_m > 59) s.off_start_m = d.off_start_m;
   if (s.off_end_m   > 59) s.off_end_m   = d.off_end_m;
-  // A zero-length window is not a schedule, it is a device that never sleeps —
+  // A zero-length window is not a schedule, it is a device that never sleeps  - 
   // and, read the other way by a naive comparison, one that never wakes. The
   // window code treats start == end as "no window", so an enable flag left on
   // with equal times would silently do nothing. Refuse the state instead.

@@ -1,4 +1,4 @@
-// anim.h — the DOWN page. The four 48x48 bitmap animations carried over from
+// anim.h, the DOWN page. The four 48x48 bitmap animations carried over from
 // the old breadboard 2x2 clock (oled2x2x, Wokwi animator, art by icons8), plus
 // seventeen PROCEDURAL ones drawn with GFX primitives.
 //
@@ -7,7 +7,7 @@
 // and prove none of them draws outside the shift envelope.
 //
 // WHY THE NEW ONES ARE PROCEDURAL AND NOT MORE BITMAPS. A bitmap animation is
-// a list of initialisers, and a list of initialisers can be one short — which
+// a list of initialisers, and a list of initialisers can be one short, which
 // is exactly what happened to the heart (see anim.cpp). A procedural animation
 // is a pure function of the tick, so there is no frame table to get out of step
 // with a declared count, and it costs a few hundred bytes of flash instead of
@@ -18,9 +18,9 @@
 // both edges of the panel. Here he turns around at the safe margin instead, and
 // every procedural animation is composed through safe-area-clipped primitives.
 // Ink outside the safe area would be clipped once the anti-burn-in wander
-// reaches its extremes — and on an animation that would read as a rendering bug
+// reaches its extremes, and on an animation that would read as a rendering bug
 // rather than as a policy. The safe area is SAFE_X0..SAFE_X1 by SAFE_Y0..SAFE_Y1
-// from display.h, which on THIS build is x[6..121] y[6..57] — 116x52. Nothing
+// from display.h, which on THIS build is x[6..121] y[6..57], 116x52. Nothing
 // in anim.cpp types those numbers; every extent is derived from the constants.
 // In the sibling tree the same code runs against a 110-column safe area (the
 // calibration nudge is bought out of the columns there), and a bar row that
@@ -30,7 +30,7 @@
 #include <Adafruit_GFX.h>
 #include <stdint.h>
 
-// THE IDS ARE STABLE. The original four keep 0..3 — they are what
+// THE IDS ARE STABLE. The original four keep 0..3, they are what
 // pages.cpp's `slot & 3` fallback renders for variant 0, one animation per
 // panel, and reordering them would silently reshuffle which face lives on
 // which panel of a device already in a case. Everything new is appended.
@@ -70,7 +70,7 @@ static const int16_t ANIM_H = 48;
 // humidity sensor and an EEPROM.
 //
 // 125 ms is 8 fps and about 75% bus occupancy, which leaves the sensors their
-// 1 Hz slots. Asking for more would not run faster — it would drop frames
+// 1 Hz slots. Asking for more would not run faster, it would drop frames
 // unevenly, which reads as a stutter rather than as a slower walk.
 static const uint32_t ANIM_FRAME_MS = 125;
 
@@ -78,7 +78,7 @@ uint8_t     anim_count(uint8_t id);        // frames in this animation
 const char *anim_name(uint8_t id);
 
 // Draw animation `id` at `tick` onto the canvas. `tick` is a free-running
-// counter, not a frame index — the walker derives its position from it too.
+// counter, not a frame index, the walker derives its position from it too.
 void anim_draw(GFXcanvas1 &c, uint8_t id, uint16_t tick);
 
 // ===========================================================================
@@ -94,7 +94,7 @@ void anim_draw(GFXcanvas1 &c, uint8_t id, uint16_t tick);
 uint8_t anim_total();
 
 // The animation at reel position `i`, 0 <= i < anim_total(). A PERMUTATION of
-// 0..AN_COUNT-1 — every animation appears exactly once — ordered so that
+// 0..AN_COUNT-1, every animation appears exactly once, ordered so that
 // consecutive entries look different from each other rather than in enum
 // order, which would play the four bitmaps and then seventeen line drawings.
 // Out of range returns AN_WALK.
@@ -105,13 +105,13 @@ uint8_t anim_reel(uint8_t i);
 //
 // For everything except AN_EYES this is the EXACT repeat period: frame t and
 // frame t + anim_cycle(id) are the same bitmap, for every t. AN_EYES is the
-// exception on purpose — its four eyes blink on periods 17/23/29/37, whose
+// exception on purpose, its four eyes blink on periods 17/23/29/37, whose
 // true common period is 419,543 frames (14.6 hours), which is the point of it.
 // What it returns instead is a length over which every eye blinks at least
 // twice. anim_cycle_exact() is how a caller tells those two cases apart.
 uint16_t anim_cycle(uint8_t id);
 
-// True when anim_cycle(id) is a real period — anim_draw(c, id, t) and
+// True when anim_cycle(id) is a real period, anim_draw(c, id, t) and
 // anim_draw(c, id, t + anim_cycle(id)) produce identical canvases for all t.
 // False when it is only a suggested viewing length (AN_EYES). The layout
 // prover checks this claim by rendering both frames and comparing them, so it
@@ -119,7 +119,7 @@ uint16_t anim_cycle(uint8_t id);
 bool anim_cycle_exact(uint8_t id);
 
 // ===========================================================================
-// SHOWREEL SCENE PIECES. The reel itself — the segmented attract-mode loop —
+// SHOWREEL SCENE PIECES. The reel itself, the segmented attract-mode loop  - 
 // lives in pages.cpp, because its sensor, stock and clock segments compose
 // from PageData and from the page renderers. What lives HERE is the pieces
 // that are ANIMATION: the walker's lap, the phase-locked heart, and the
@@ -128,11 +128,11 @@ bool anim_cycle_exact(uint8_t id);
 
 // ---- the walker's pass -----------------------------------------------------
 // ONE RULE OF MOTION: he walks. Horizontally, at constant speed, in one
-// direction, and that is ALL he does — he never stops, never turns, never
+// direction, and that is ALL he does, he never stops, never turns, never
 // moves vertically, never teleports. (The v3 lap had descent/ascent legs and
 // a mid-panel turn; the user cut them.) A pass enters from OFF the glass at
 // one side edge of a row, walks continuously across BOTH panels of that row
-// — crossing the bezel with the established one-frame hidden beat — and
+//, crossing the bezel with the established one-frame hidden beat, and
 // exits fully off the far edge.
 //
 // GROUND SPEED IS THE ARTWORK'S, MEASURED, NOT CHOSEN. The physics of a
@@ -141,21 +141,21 @@ bool anim_cycle_exact(uint8_t id);
 // planted foot backward through the sprite box. This artwork (measured by
 // a separate foot-plant measuring tool) is a HYBRID
 // in-place cycle: each 14-frame half-step holds the planted foot ~5 frames,
-// then sweeps it back ~1.3 px/frame over ~9 frames — a mean stride of
+// then sweeps it back ~1.3 px/frame over ~9 frames, a mean stride of
 // SR_STRIDE_PX = 1 px per artwork frame (13-14 px per half-step). Rendered
 // and measured at this stride: the planted foot's glass movement is 0 px on
 // 66% of tick pairs, mean 0.37 px, max 2 px on the artwork's roughest
-// transition — identical on all four pass variants — and the net foot drift
+// transition, identical on all four pass variants, and the net foot drift
 // is ~0 at tempos 1-4, so he cannot moonwalk at any setting. (1 px/frame is
 // the same rate the roster's AN_WALK has always used, which is why that
 // walker never read as skating.)
 //
 // ONE KNOB: WALKER_TEMPO, artwork frames per render tick. Ground speed and
 // gait rate BOTH derive from it through the measured stride, so foot-plant
-// sync holds at every setting — change the tempo and he walks faster, he
+// sync holds at every setting, change the tempo and he walks faster, he
 // never skates or moonwalks. At the walker segment's 63 ms tick (16 fps,
 // affordable because a crossing dirties one panel per tick):
-//   1 = walk, 16 px/s   (SHIPS — every artwork frame shown, 1 px steps)
+//   1 = walk, 16 px/s   (SHIPS, every artwork frame shown, 1 px steps)
 //   2 = brisk, 32 px/s  (every 2nd frame)
 //   3 = hurried, 48 px/s
 //   4 = run-ish, 64 px/s
@@ -164,7 +164,7 @@ bool anim_cycle_exact(uint8_t id);
 //   bit 0  row        0 = top (TL,TR)     1 = bottom (BL,BR)
 //   bit 1  direction  0 = left-to-right   1 = right-to-left (mirrored sprite)
 // The renderer is a pure function of (slot, tick, variant), so the prover
-// enumerates all four variants exhaustively — the randomness lives only in
+// enumerates all four variants exhaustively, the randomness lives only in
 // which variant the scheduler hands the snapshot, exactly the roster's
 // arrangement with anim_ids.
 static const uint8_t  WALKER_TEMPO   = 1;   // artwork frames per tick
@@ -189,7 +189,7 @@ void sr_pass_draw(GFXcanvas1 &c, uint8_t slot, uint16_t t, uint8_t variant);
 bool sr_pass_blank_ok(uint8_t slot, uint16_t t, uint8_t variant);
 
 // ---- the heart, phase-locked ----------------------------------------------
-// One full 27-frame heart cycle — its two beats — identical on every panel at
+// One full 27-frame heart cycle, its two beats, identical on every panel at
 // the same instant. The roster's scheduler deliberately never phase-locks
 // four panels; the reel doing it is the contrast that reads as intentional.
 static const uint16_t SR_HEART_TICKS = 27;
@@ -209,7 +209,7 @@ void wx_anim_draw(GFXcanvas1 &c, uint8_t kind, uint16_t tick);
 //
 // THIS EXISTS BECAUSE OF A REAL BUG. heartFrames was declared
 // [HEART_FRAME_COUNT][288] with HEART_FRAME_COUNT 28 and only 27 initialisers,
-// so the compiler zero-filled the 28th: once every 28 frames — every 3.5 s —
+// so the compiler zero-filled the 28th: once every 28 frames, every 3.5 s  - 
 // the heart rendered as nothing at all and came back the next frame. The user
 // reported it as "sometimes skips a frame", which is exactly what it was.
 //

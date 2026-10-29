@@ -11,15 +11,15 @@
 // than a rule someone has to remember.
 //
 // THE PANEL CLOCK, IN ONE PLACE. 800 kHz is 2x the SSD1306 datasheet figure,
-// which these modules are commonly run at and well past on short traces —
+// which these modules are commonly run at and well past on short traces  - 
 // this board is 74 mm end to end with proper pull-ups (R1/R2), so the edges
 // have every chance of surviving. It is an EXPERIMENT with a bench soak
 // standing behind it, not a datasheet number: if the soak (or any later `?`
-// report) shows I2C errors or visual corruption, set this back to 400000UL —
+// report) shows I2C errors or visual corruption, set this back to 400000UL  - 
 // this one constant is the whole change.
 //
 // THE PANELS ARE THE ONLY THING THAT RUNS AT THIS SPEED. clkAfter (below)
-// hands the bus back at BUS_PERIPH_HZ — the same 400 kHz bus_begin() sets —
+// hands the bus back at BUS_PERIPH_HZ, the same 400 kHz bus_begin() sets  - 
 // because the DS3231, 24LC256 and PCA9548A are 400 kHz parts by datasheet.
 // Overclocking the panel payload is an experiment the soak can retire;
 // running the RTC out of spec between commits would be a defect, and one
@@ -29,7 +29,7 @@ static const uint32_t BUS_PERIPH_HZ  = 400000UL;   // = bus_begin()'s setClock
 // THE LAST TWO ARGUMENTS ARE NOT OPTIONAL HERE.
 // Adafruit_SSD1306's signature is (w, h, twi, rst, clkDuring, clkAfter) and
 // clkAfter DEFAULTS TO 100000. The library restores that clock at the end of
-// every display(), every ssd1306_command() and every begin() — so the
+// every display(), every ssd1306_command() and every begin(), so the
 // four-argument form means bus_begin()'s Wire.setClock(400000) holds only
 // until the first panel write, and the DS3231, SHT31, EEPROM and mux then run
 // at 100 kHz for the life of the device. The panel payload itself stays at
@@ -45,7 +45,7 @@ static bool panel_ok[N_SCREENS] = {false, false, false, false};
 // ---- the dirty-commit shadows ---------------------------------------------
 // One 1 KB copy per panel of the POST-TRANSFORM bytes last pushed over the
 // bus. A push costs ~23 ms at 400 kHz and a memcmp costs microseconds, so a
-// panel whose bytes have not changed is simply not pushed — which is what
+// panel whose bytes have not changed is simply not pushed, which is what
 // lets the reel's walker and weather segments tick at ~16 fps while only the
 // panel that changed pays the bus.
 //
@@ -55,7 +55,7 @@ static bool panel_ok[N_SCREENS] = {false, false, false, false};
 // The shadow is INVALID (never trusted) wherever GDDRAM or the transform can
 // change behind our back: a (re)scan re-initialises the controller, a flip
 // changes the transform, a panel that reappears was power-cycled. A blank
-// (DISPLAYOFF) is deliberately NOT one of those — it stops the scan but
+// (DISPLAYOFF) is deliberately NOT one of those, it stops the scan but
 // preserves GDDRAM, so on wake the glass still holds exactly the shadowed
 // bytes.
 static uint8_t shadow[N_SCREENS][(SCR_W * SCR_H) / 8];
@@ -71,7 +71,7 @@ static uint32_t commit_last_us = 0, commit_max_us = 0;
 static uint8_t  commit_last_pushed = 0, commit_last_asked = 0;
 static uint32_t commit_pushed_total = 0, commit_skipped_total = 0;
 
-// The draw targets. 4 x 1 KB of plain RAM, allocated once and never freed —
+// The draw targets. 4 x 1 KB of plain RAM, allocated once and never freed  - 
 // a 1 KB malloc/free per repaint would fragment the heap on a device that is
 // expected to run for months without a reboot.
 static GFXcanvas1 canvas[N_SCREENS] = {
@@ -95,11 +95,11 @@ static bool     blanked      = false;
 
 // ============================================================ brightness ==
 // THREE REGISTERS, NOT ONE. The contrast register (0x81) alone barely changes
-// what the eye sees on these panels — it scales segment current, but the
+// what the eye sees on these panels, it scales segment current, but the
 // perceived floor stays high. The two that actually move brightness with it
 // are the PRECHARGE period (0xD9) and the VCOMH deselect level (0xDB).
 // Driven together the panel goes from clearly bright to a faint glow; driven
-// apart, 255 and 1 look nearly the same — which is exactly the "dimming isn't
+// apart, 255 and 1 look nearly the same, which is exactly the "dimming isn't
 // working" symptom this cost a day to find.
 //
 // Contrast is also the LIFETIME knob, not a comfort setting: it is a linear
@@ -139,15 +139,15 @@ static void write_contrast(uint8_t c) {
 // span of ambient readings the curve maps onto bright_night..bright_day, and
 // the honest way to say "respond more" is to make that span narrower: the same
 // change in the room then covers more of it. A multiplier on the output would
-// have done something quite different — it would have fought the two caps,
+// have done something quite different, it would have fought the two caps,
 // which exist for panel lifetime and are not this setting's to move.
 //
 // The window is scaled about its MIDPOINT so the sensitivity knob does not
 // also quietly re-centre what counts as "a lit room"; only the steepness of
 // the ramp between dark and lit changes.
 void disp_light_window(uint16_t &lo, uint16_t &hi) {
-  // Indexed by DimSens. Index 0 is unreachable — settings_sanitize() maps a
-  // zero (which is what a CFG_VERSION 1 record supplies) to MED — but it is
+  // Indexed by DimSens. Index 0 is unreachable, settings_sanitize() maps a
+  // zero (which is what a CFG_VERSION 1 record supplies) to MED, but it is
   // filled in with the MED value anyway so a future path that skipped the
   // sanitizer degrades to the default instead of collapsing the window.
   static const uint16_t WIDTH_PCT[DIM_SENS_COUNT] = {100, 210, 100, 55, 28};
@@ -183,7 +183,7 @@ static uint8_t target_contrast() {
   else if (sm >= whi) c = hi;
   else c = lo + (uint32_t)(sm - wlo) * (hi - lo) / (whi - wlo);
 
-  // NIGHT_CAP is 24 from design/anti-burn-in.md — a ~9 uA/segment operating
+  // NIGHT_CAP is 24 from design/anti-burn-in.md, a ~9 uA/segment operating
   // point. Overnight is when the display is least looked at and most lit, so
   // it is where the lifetime budget is won or lost.
   if (is_night && cfg.night_mode >= 1) {
@@ -196,7 +196,7 @@ static uint8_t target_contrast() {
 void disp_set_ambient(uint16_t raw) {
   // SMOOTH FIRST. The bare reading wanders +/-10 counts sample to sample,
   // which through the curve came out as the contrast hunting between 154 and
-  // 172 five times a second — visible flicker, and four I2C writes each time
+  // 172 five times a second, visible flicker, and four I2C writes each time
   // for a change nobody can see. An exponential average over ~2 s of samples
   // plus a wide deadband turns it into the slow drift that "the room got
   // darker" actually looks like.
@@ -220,7 +220,7 @@ void disp_set_night(bool night) {
   // BLANKING IS NOT DECIDED HERE ANY MORE. It used to be: night_mode 2 called
   // disp_all_off() from this function. That was fine while the night window
   // was the only thing that could darken the glass, and became a bug the
-  // moment the daily screens-off schedule became a second one — two owners
+  // moment the daily screens-off schedule became a second one, two owners
   // toggling the same flag from different clocks, so whichever ran last won
   // and a wake inside one window was undone by the other.
   //
@@ -230,7 +230,7 @@ void disp_set_night(bool night) {
   // returns without writing but ui_paint() still updates its last_min/last_sec
   // bookkeeping as though the frame had reached the glass, so un-blanking
   // without forcing a repaint lights the panels showing the image physically
-  // written BEFORE the blank — up to a minute of a confidently wrong clock.
+  // written BEFORE the blank, up to a minute of a confidently wrong clock.
 }
 
 uint8_t disp_contrast() { return cur_contrast; }
@@ -371,7 +371,7 @@ void disp_commit(uint8_t mask) {
     if (!panel_ok[i] || !(mask & (1 << i))) continue;
     asked++;
     blit(i);
-    // THE DIRTY CHECK, on the post-transform bytes — the exact image the
+    // THE DIRTY CHECK, on the post-transform bytes, the exact image the
     // controller would receive. Identical bytes on an initialised panel mean
     // the glass already shows this frame; pushing it again buys nothing and
     // costs a panel-time of bus.
@@ -468,7 +468,7 @@ void disp_rescan() {
   shadow_drop_all();
   for (uint8_t i = 0; i < N_SCREENS; i++) {
     // ~40 I2C transactions per panel. On a wedged bus, at the per-transaction
-    // timeout, four panels is longer than the task watchdog allows — and
+    // timeout, four panels is longer than the task watchdog allows, and
     // rescan is reachable at runtime from the serial 'S' command, not just at
     // boot. Feed the dog between panels.
     feedLoopWDT();
@@ -498,14 +498,14 @@ void disp_rescan() {
 void disp_begin() {
   // The five 1 KB canvases are malloc'd by their constructors, before setup()
   // runs, and a failure leaves buffer == NULL rather than throwing. Most of
-  // GFXcanvas1 guards on that — but drawFastRawVLine/HLine, which every
+  // GFXcanvas1 guards on that, but drawFastRawVLine/HLine, which every
   // fillRect, drawRect and drawCircle reaches, do not. So check here rather
   // than trusting the library, because the alternative is a null-deref on the
   // first frame with no explanation.
   for (uint8_t i = 0; i < N_SCREENS; i++) {
     if (!canvas[i].getBuffer()) {
       Serial.print("# FATAL: canvas "); Serial.print(i);
-      Serial.println(" did not allocate — out of heap. Halting.");
+      Serial.println(" did not allocate, out of heap. Halting.");
       // Better a board that says why it stopped than one that crashes with a
       // backtrace into the graphics library.
       while (true) { delay(1000); }

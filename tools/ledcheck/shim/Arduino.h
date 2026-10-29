@@ -4,7 +4,7 @@
 // WHY THIS IS A SHIM AND NOT A REIMPLEMENTATION. Same rule the layout prover
 // works under: the value of the store prover is that it exercises the exact
 // source that ships, so anything reimplemented here is something the prover
-// could be wrong about. This file contains no store logic, no CRC, no ring —
+// could be wrong about. This file contains no store logic, no CRC, no ring  - 
 // only Print (so a Serial exists), the PROGMEM macros, and a millis() the
 // deferred-write timer can read. The EEPROM itself is modelled in Wire.h,
 // which is a model of the CHIP, not of the code under test.
@@ -63,7 +63,7 @@ inline uint32_t esp_random() { return 0; }
 
 // A CONTROLLABLE CLOCK, unlike the layout prover's constant 0. settings_tick()
 // is a deferred write on a 3 s timer, and a test that cannot advance time
-// cannot tell "the write was deferred" from "the write never happened" — which
+// cannot tell "the write was deferred" from "the write never happened", which
 // is exactly the distinction worth proving.
 extern unsigned long host_millis;
 inline unsigned long millis() { return host_millis; }
@@ -74,7 +74,7 @@ inline unsigned long micros() { return host_millis * 1000UL; }
 inline void delay(unsigned long ms) { host_millis += ms; }
 inline void delayMicroseconds(unsigned int) {}
 
-// Silent by default. The store is deliberately chatty on the serial console —
+// Silent by default. The store is deliberately chatty on the serial console  - 
 // that narration is a feature on the device and noise in a test harness, so it
 // is swallowed unless a test asks to see it.
 extern bool host_serial_quiet;

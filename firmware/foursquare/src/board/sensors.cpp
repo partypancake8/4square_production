@@ -39,7 +39,7 @@ RtcTime rtc_read() {
   t.mon  = bcd2dec(mo & 0x1F);
   t.year = (uint16_t)(2000 + bcd2dec(Wire.read()) + ((mo & 0x80) ? 100 : 0));
   // A plausibility gate. A bus glitch that returns 0xFF everywhere would
-  // otherwise be rendered as a confident, wrong time — and a clock that is
+  // otherwise be rendered as a confident, wrong time, and a clock that is
   // obviously broken is better than one that is quietly wrong.
   t.ok = t.mon >= 1 && t.mon <= 12 && t.day >= 1 && t.day <= 31 &&
          t.hour < 24 && t.min < 60 && t.sec < 60 &&
@@ -150,11 +150,11 @@ static uint32_t l_mv  = 0;
 // R7 and the LEDs sit on the same board face 9.5 mm apart, so a lit LED shines
 // straight into the sensor. MEASURED 2026-08-07: the same room reads 78-92 with
 // the LEDs dark and 172-192 with a red LED lit. Blanking for 25 ms first is
-// what makes this a measurement of the ROOM. 4 ms was tried and is not enough —
+// what makes this a measurement of the ROOM. 4 ms was tried and is not enough  - 
 // a phototransistor needs longer than that to decay, and every calibration made
 // against 4 ms readings was wrong.
 // WHAT CHANGED, AND WHY. This used to be `strip.clear(); strip.show();
-// delay(25)` and then nothing — the strip was left BLACK until whenever
+// delay(25)` and then nothing, the strip was left BLACK until whenever
 // led_tick next happened to run. That is a 25 ms hard-edged hole punched into
 // every LED animation, once a second, forever. It is the black notch the user
 // reported as flicker, and it was the dominant visible defect in the LED layer.

@@ -1,4 +1,4 @@
-// pages.h — version A: four buttons, four pages.
+// pages.h, version A: four buttons, four pages.
 //
 // THE GRAMMAR, in one sentence:
 //   each button owns a page, and pressing it again cycles a variant of it.
@@ -9,7 +9,7 @@
 //   DOWN  -> animations       (again: next animation)
 //
 // All four panels render the same page, one slot each. There is no menu, no
-// modal editor and no "PREVIEW" caption — a press changes what you are looking
+// modal editor and no "PREVIEW" caption, a press changes what you are looking
 // at, immediately, and that is the whole interface.
 //
 // EVERYTHING IN HERE IS PURE, for exactly the reason faces.h is: it is handed
@@ -46,7 +46,7 @@ struct StopwatchData {
 
 // The clock styles MODE cycles, in order. OUTLINE is first because it is both
 // the look the user picked and the lowest-fill one, so the default costs the
-// least panel life. BARS and DOTS are deliberately absent — they were tried
+// least panel life. BARS and DOTS are deliberately absent, they were tried
 // and rejected; SHADOW and STENCIL replace them.
 extern const uint8_t CLOCK_STYLES[];
 extern const uint8_t CLOCK_STYLE_N;
@@ -72,7 +72,7 @@ struct SensorData {
 //
 // Prices arrive as TEXT, already formatted by the fetcher. A renderer that
 // did its own float formatting would have to be handed a float, and then the
-// prover could not enumerate it — there is no finite set of floats. A short
+// prover could not enumerate it, there is no finite set of floats. A short
 // string has a finite set of lengths, which is what makes the layout provable.
 struct Quote {
   char    sym[8];
@@ -99,7 +99,7 @@ enum SetItem : uint8_t {
 // enumerate a global it does not control.
 struct SettingsData {
   // 0 = OFF, then DimSens 1..4. OFF is a real position on this dial even
-  // though it is not a value of cfg.dim_sens — it is cfg.autodim == 0. The UI
+  // though it is not a value of cfg.dim_sens, it is cfg.autodim == 0. The UI
   // flattens the two fields into one knob here so the renderer sees a single
   // ordinal and the prover has one axis to walk.
   uint8_t sens_level;
@@ -110,7 +110,7 @@ struct SettingsData {
   uint8_t cursor;                   // which SetItem is selected, 0..SI_COUNT-1
 };
 
-// The label and value strings for one item. In pages.cpp — the PURE layer —
+// The label and value strings for one item. In pages.cpp, the PURE layer  - 
 // and not in ui.cpp, so the prover enumerates THE STRINGS THAT SHIP rather
 // than a second set written to match. Widths are what break a layout, and a
 // reimplementation that agreed today would drift the first time a label grew.
@@ -144,16 +144,16 @@ struct PageData {
   // The page has three scenes and ui.cpp owns the schedule between them:
   //   SCENE_ROSTER    the four shuffled streams above
   //   SCENE_SHOWREEL  the segmented attract-mode loop (showreel_draw below),
-  //                   the page's FIRST stop — arrival lands here
+  //                   the page's FIRST stop, arrival lands here
   //   SCENE_CLOCK     the giant one-digit-per-panel clock interlude, which
   //                   ui.cpp cuts to every ~10 s of ROSTER so the page always
   //                   tells the time; inside the SHOWREEL the same interlude
   //                   is a segment of the reel itself
   // All three read `anim_frame` for their tick; the reel and the clock also
   // read `clock` (and the reel `sens` and `q`), all fields this snapshot
-  // already carries — a scene is one byte, not a new data path.
+  // already carries, a scene is one byte, not a new data path.
   uint8_t      anim_scene;
-  // The walker pass VARIANT for this reel loop — bit 0 row, bit 1 direction
+  // The walker pass VARIANT for this reel loop, bit 0 row, bit 1 direction
   // (anim.h). ui.cpp re-rolls it at every reel wrap; the renderer and the
   // blank map are pure in it, so the prover enumerates all four.
   uint8_t      sr_walk;
@@ -163,7 +163,7 @@ struct PageData {
 enum AnimScene : uint8_t { SCENE_ROSTER = 0, SCENE_SHOWREEL, SCENE_CLOCK };
 
 // ===========================================================================
-// THE SHOWREEL — the segmented attract-mode loop, and the clock interlude.
+// THE SHOWREEL, the segmented attract-mode loop, and the clock interlude.
 // ===========================================================================
 // Everything is pure and per-slot, so the prover enumerates it exactly like
 // the pages: showreel_draw is handed the SAME PageData snapshot page_render
@@ -192,7 +192,7 @@ enum AnimScene : uint8_t { SCENE_ROSTER = 0, SCENE_SHOWREEL, SCENE_CLOCK };
 static const uint16_t SHOWREEL_TICKS = 747;
 static const uint16_t SR_FAST_MS     = 63;    // the dirty-commit tick
 
-// The boundaries, derived by summation — EXPORTED so the prover can aim its
+// The boundaries, derived by summation, EXPORTED so the prover can aim its
 // data-domain sweeps at the segment that actually reads the data (the sensor
 // sweep at the sensor ticks, the quote sweep at the stock ticks) instead of
 // multiplying every axis by every tick.
@@ -217,8 +217,8 @@ void showreel_draw(GFXcanvas1 &c, uint8_t slot, uint16_t tick,
 // clock of the reel is stated once, here, and ui.cpp only schedules it.
 uint16_t showreel_tick_ms(uint16_t tick);
 // The blank map: whether THIS slot at THIS tick may light nothing. Blankness
-// in the reel is choreography — the walker is elsewhere, a stagger has not
-// reached this panel yet, the final beat — and the map is derived from the
+// in the reel is choreography, the walker is elsewhere, a stagger has not
+// reached this panel yet, the final beat, and the map is derived from the
 // same segment table the renderer walks. Data-independent given d.sr_walk
 // (the one field it reads): every segment's renderer lights ink on every
 // input once its stagger has arrived.
@@ -228,11 +228,11 @@ bool showreel_blank_ok(uint8_t slot, uint16_t tick, const PageData &d);
 // TR=hour units, BL=minute tens, BR=minute units, each digit slamming in
 // size 3 -> 5 -> 7 staggered one tick per slot, then HELD to the end.
 // Exported separately because it serves twice: as the reel's clock segments,
-// and as the interlude ui.cpp cuts to every ~10 s of the shuffled roster —
+// and as the interlude ui.cpp cuts to every ~10 s of the shuffled roster  - 
 // one clock, both modes. It is played ONCE per interlude, never wrapped on
 // the glass (the roster resumes after it; inside the reel the wrap belongs
 // to the reel), which is why its prover law checks the blank map and the
-// period but not wrap continuity — there is no wrap to be continuous.
+// period but not wrap continuity, there is no wrap to be continuous.
 static const uint16_t SHOWCLOCK_TICKS = 80;   // 10.0 s
 static_assert(SHOWCLOCK_TICKS == 80,
               "the SR_AT_* map above types 80 for the two clock segments; "

@@ -1,19 +1,19 @@
-// 4square rev O — the clock.
+// 4square rev O, the clock.
 //
 // WHAT THIS IS
 //   Four 128x64 OLEDs on a PCA9548A mux, a DS3231, an SHT31, a 24LC256, a
 //   phototransistor and three RGB LEDs, on an ESP32-C3 SuperMini.
 //
 // HOW IT IS PUT TOGETHER, and why the shape matters
-//   config.h      pins, addresses, tunables — one place, all from the NETLIST
+//   config.h      pins, addresses, tunables, one place, all from the NETLIST
 //   bus.cpp       I2C, the mux, and a recovery ladder that can actually
 //                 unstick a slave holding SDA low
 //   store.cpp     the 24LC256, as a wear-levelled ring of settings records
 //   display.cpp   THE ONLY CODE THAT CAN WRITE TO A PANEL. Anti-burn-in is
 //                 applied here, so no drawing code can forget it or opt out
-//   faces.cpp     what a clock face shows — pure, no hardware
-//   pages.cpp     the four button pages — pure, no hardware
-//   anim.cpp      48x48 animation frames — pure, no hardware
+//   faces.cpp     what a clock face shows, pure, no hardware
+//   pages.cpp     the four button pages, pure, no hardware
+//   anim.cpp      48x48 animation frames, pure, no hardware
 //   ui.cpp        buttons and page selection
 //   leds.cpp      the status language
 //   hw.cpp        RTC, SHT31, light
@@ -24,7 +24,7 @@
 //   place or draws where the burn-in shift would clip it.
 //       firmware/tools/layoutcheck/build.sh      <- run this before flashing
 //
-// HOST CONTRACT — do not change the `T` line without changing 4square-mon.py.
+// HOST CONTRACT, do not change the `T` line without changing 4square-mon.py.
 //   T <sht_c> <rh_pct> <rtc_c> <ldr_raw> <ldr_mv> <btn_now> <btn_seen> <millis>
 #include <Arduino.h>
 #include <Wire.h>
@@ -69,11 +69,11 @@
 #endif
 
 // ===========================================================================
-// DEFECT FIX 1 of 2 — OTA ROLLBACK WAS BEING THROWN AWAY.
+// DEFECT FIX 1 of 2, OTA ROLLBACK WAS BEING THROWN AWAY.
 // ===========================================================================
 // With app rollback enabled the bootloader starts a freshly flashed image in
 // PENDING_VERIFY and reverts to the previous one unless the app marks itself
-// valid. The Arduino core does that inside initArduino(), BEFORE setup() runs —
+// valid. The Arduino core does that inside initArduino(), BEFORE setup() runs  - 
 // so the safety net was spent before there was anything to be safe about, and
 // a firmware that crashed on its first line would need a cable to recover.
 //
@@ -108,8 +108,8 @@ static bool ota_started = false;
 // so between them an OTA that ends WITHOUT firing onEnd or onError is the one
 // state this firmware cannot recover from on its own: no loop, no watchdog, no
 // display updates, and the LEDs frozen on whatever progress bar they last
-// drew. Every known path does fire one of the two — setTimeout(4000) sees to
-// that — which is precisely why this is worth having: the failure it catches
+// drew. Every known path does fire one of the two, setTimeout(4000) sees to
+// that, which is precisely why this is worth having: the failure it catches
 // is the unknown one, and its cost is a comparison per pass.
 static uint32_t ota_activity_ms = 0;
 static const uint32_t OTA_STALL_MS = 30000;
@@ -217,7 +217,7 @@ static void print_settings() {
   Serial.print("#   led bright  = "); Serial.println(cfg.led_bright);
   // Held states and their remaining budget. A dark fault LED now means either
   // "no fault" or "a fault whose budget lapsed", and only this can tell them
-  // apart — see the hold watchdog in leds.cpp.
+  // apart, see the hold watchdog in leds.cpp.
   led_report();
 }
 
@@ -241,7 +241,7 @@ static void poll_serial() {
       // B0..B3 = MODE/SET/UP/DOWN, and a trailing L makes it a LONG press.
       // SW1-SW4 are through-hole parts in the LCSC kit and JLC never fitted
       // them, so on an unpopulated board this is the only way to reach the
-      // pages — and since holding SET is the only way into the settings page,
+      // pages, and since holding SET is the only way into the settings page,
       // `B1L` is the only way to reach that at all.
       case 'B': {
         int n = atoi(line + 1);
@@ -252,7 +252,7 @@ static void poll_serial() {
       case 'Z': rtc_clear_osf(); Serial.println("# OSF cleared"); break;
       case 'I': led_fire(LED_IDENTIFY); Serial.println("# identify"); break;
       // Re-scan the screens. The boot report scrolls past before a host can
-      // attach — this board is native-USB CDC, so it does NOT reset when
+      // attach, this board is native-USB CDC, so it does NOT reset when
       // DTR/RTS toggle and you cannot reopen the port to catch it.
       case 'S': disp_rescan(); ui_force_repaint(); break;
       case 'R': {
@@ -328,7 +328,7 @@ static void ota_setup() {
     ota_active = true;
     ota_started = true;
     ota_activity_ms = millis();
-    // ArduinoOTA.handle() is FULLY BLOCKING — _runUpdate() does not return
+    // ArduinoOTA.handle() is FULLY BLOCKING, _runUpdate() does not return
     // until the transfer ends, so loop() is never entered and the loop
     // watchdog would fire partway through and reboot mid-flash.
     disableLoopWDT();
@@ -338,7 +338,7 @@ static void ota_setup() {
     // kill these transfers on charger power.
     disp_all_off(true);
     // The 11 dBm cap guards the LDO with the screens and LEDs lit. Both are
-    // off right now, so the transfer gets the full radio — which is the half
+    // off right now, so the transfer gets the full radio, which is the half
     // of the link this board is worst at. See design/ota-diagnosis.md.
     WiFi.setTxPower(WIFI_POWER_19_5dBm);
   });
@@ -358,7 +358,7 @@ static void ota_setup() {
     WiFi.setTxPower(WIFI_POWER_11dBm);
     led_hold(LED_OTA_ACTIVE, false);
     led_fire(LED_OTA_FAIL);
-    // The panels are left exactly as onStart put them — dark — and ui_tick's
+    // The panels are left exactly as onStart put them, dark, and ui_tick's
     // blank policy decides within one 50 ms pass whether they should come
     // back. This used to re-derive the answer here from night_mode, which was
     // a second copy of a rule that now has two inputs (the night window AND
@@ -368,7 +368,7 @@ static void ota_setup() {
   });
   // The stock receive deadline is 1000 ms, and on the FIRST chunk the retry
   // branch is skipped (written == 0), so one late chunk is an instant
-  // OTA_RECEIVE_ERROR — the "error 3 at 1.0 s" this board kept producing.
+  // OTA_RECEIVE_ERROR, the "error 3 at 1.0 s" this board kept producing.
   // Stays under espota's own 10 s per-chunk budget.
   ArduinoOTA.setTimeout(4000);
   ArduinoOTA.begin();
@@ -495,10 +495,10 @@ void setup() {
 #endif
 
   // =========================================================================
-  // DEFECT FIX 2 of 2 — loop() WAS NOT WATCHDOGGED.
+  // DEFECT FIX 2 of 2, loop() WAS NOT WATCHDOGGED.
   // =========================================================================
   // The Arduino core leaves loopTaskWDTEnabled false, so a loop() that wedged
-  // — on a stuck I2C bus, say — hung forever with no recovery and no evidence
+  //, on a stuck I2C bus, say, hung forever with no recovery and no evidence
   // of why. Subscribed, a pass that never returns reboots the device and
   // leaves a reset reason behind. It is explicitly disabled for the duration
   // of an OTA, which blocks by design.
@@ -546,7 +546,7 @@ void loop() {
     if ((uint32_t)(now - ota_activity_ms) > OTA_STALL_MS) {
       // See the dead-man switch note at the top. Put back everything onStart
       // took away, in the same order onError would have.
-      Serial.println("# OTA went quiet — recovering");
+      Serial.println("# OTA went quiet, recovering");
       ota_active = false;
       ota_started = false;
       enableLoopWDT();
@@ -619,7 +619,7 @@ void loop() {
       Serial.print(' ');  Serial.println(now);
     }
     // OUTSIDE the if. Clearing the latch only on success meant that with a
-    // failing SHT31 — the exact fault the E line exists to report — every
+    // failing SHT31, the exact fault the E line exists to report, every
     // button press ever made stayed latched, and the host panel showed all
     // four buttons permanently held.
     btn_latched = 0;
@@ -640,7 +640,7 @@ void loop() {
   // display.cpp used to un-blank the panels on its own at the end of the night
   // window; now ui.cpp's blank policy owns that transition and forces the
   // repaint at the point it makes the decision. A panel re-initialised behind
-  // the UI's back is still covered — that is what disp_health_check() returns.)
+  // the UI's back is still covered, that is what disp_health_check() returns.)
 
   // Faults, in the order the LED layer will show them.
   led_hold(LED_FAULT_I2C, bus_faulting() || disp_present_mask() != 0x0F);

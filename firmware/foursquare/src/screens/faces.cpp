@@ -9,7 +9,7 @@ const char *const FX_WDAY[7] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"}
 const char *const FX_MON[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
                                 "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
-// Weekday from the DATE, by Sakamoto — NOT from the DS3231's day-of-week
+// Weekday from the DATE, by Sakamoto, NOT from the DS3231's day-of-week
 // register. That register is just a counter the host has to set correctly and
 // nothing here ever has, so trusting it would print a weekday that is right
 // only by luck. Verified against `date`: 2026-08-07 = FRI both ways.
@@ -38,7 +38,7 @@ int16_t fx_text_h(uint8_t size) { return (int16_t)(7 * size); }
 // same metrics, so every fit calculation still holds.
 //
 // It is also the single biggest burn-in win available. A size-7 '8' goes from
-// ~800 lit pixels to ~170 — and lifetime on these panels runs as roughly the
+// ~800 lit pixels to ~170, and lifetime on these panels runs as roughly the
 // inverse 1.4 power of drive current, on glyphs that sit in the same place for
 // years.
 //
@@ -51,8 +51,8 @@ static GFXcanvas1 scratch(SCR_W, SCR_H);
 // chip that hugs the ink. Two things about that are deliberate.
 //
 // FIRST: IT HAPPENS INSIDE THE ELEMENT, between one ELEM() and the next. The
-// obvious implementation — draw the whole face, then invert the canvas at the
-// end of face_render() — cannot be proven. The host prover snapshots AND
+// obvious implementation, draw the whole face, then invert the canvas at the
+// end of face_render(), cannot be proven. The host prover snapshots AND
 // CLEARS the canvas at every element boundary, so a post-pass would invert a
 // nearly-empty canvas on the host and a full one on the device: the prover
 // would be proving a different program from the one that ships. Every negative
@@ -62,14 +62,14 @@ static GFXcanvas1 scratch(SCR_W, SCR_H);
 // SECOND: A CHIP, NEVER THE SAFE AREA. Inverting the whole 116x52 is 73% lit,
 // which on an OLED that shows the same face for years is a lifetime problem
 // rather than a style choice. Hugging the ink with a few pixels of padding and
-// dropping the glyph a size or two lands the inverted looks at ~28-33% —
+// dropping the glyph a size or two lands the inverted looks at ~28-33%  - 
 // still over the 15% always-on budget, reported as a warning, and a trade the
 // user makes by pressing MODE. Panel-level inversion (SSD1306 0xA7) stays OFF
 // for the same reason: it multiplies fill factor across the entire panel.
 //
 // THIRD, and this one the prover found rather than the design: THE CHIP IS
 // SCREENED, not solid. A solid block gets NO relief from the anti-burn-in
-// shift — a pixel in its interior is lit at every offset in the envelope, so
+// shift, a pixel in its interior is lit at every offset in the envelope, so
 // its duty is 1.000 and the shift buys it exactly nothing. The prover measures
 // that (SHIFT RELIEF, floor 1.10x) and failed 1261 screens on the first solid
 // version. Dropping one pixel in every 2x2 cell fixes it at the root: because
@@ -78,7 +78,7 @@ static GFXcanvas1 scratch(SCR_W, SCR_H);
 // comes out at ~1.33x, fill drops by a quarter, and at this size a 3-in-4
 // screen reads as a solid lit block from anywhere but nose-to-glass.
 //
-// The composite is ADDITIVE — it only ever sets pixels, never clears them.
+// The composite is ADDITIVE, it only ever sets pixels, never clears them.
 // The knockout is achieved by NOT DRAWING the glyph, exactly like the stencil
 // bands above, so an inverted element cannot damage a neighbouring one in a
 // way the prover structurally cannot see.
@@ -107,8 +107,8 @@ static uint8_t inv_size(uint8_t s) {
 // THE CHIP IS CLAMPED TO A WINDOW, AND THE WINDOW IS NOT ALWAYS THE SAFE AREA.
 // For the six original styles it is: nothing else is on the panel, so the only
 // thing a chip can run into is the edge. The ported themes changed that. Their
-// chrome is drawn at NORMAL polarity — a lit rule, a lit card, a lit tick
-// scale — and a plate that reached it would be lit underneath it, so the
+// chrome is drawn at NORMAL polarity, a lit rule, a lit card, a lit tick
+// scale, and a plate that reached it would be lit underneath it, so the
 // chrome would vanish into its own plate. On DIAL, whose entire chrome IS the
 // scale, that loses the theme.
 //
@@ -124,7 +124,7 @@ static void chip_clamp_reset() {
 }
 
 // ---- THE SCRATCH BUFFERS CARRY STATE, AND THAT STATE LEAKS ----------------
-// `scratch` and `neg` are file-scope canvases — deliberately, because a 1 KB
+// `scratch` and `neg` are file-scope canvases, deliberately, because a 1 KB
 // malloc and free on every repaint would fragment the heap on a device
 // expected to run for months. The cost of that decision is that a GFXcanvas1
 // REMEMBERS ITS FONT AND TEXT SIZE, so whatever the last render left set is
@@ -132,8 +132,8 @@ static void chip_clamp_reset() {
 //
 // That went unnoticed for as long as every renderer used the same built-in
 // 5x7 font. The themed faces broke it: an INVERTED themed element draws into
-// `neg` with a 46 px custom font, and the next classic inverted element —
-// stack2_impl, face_words, face_shadow — calls fx_left(neg, ...) with
+// `neg` with a 46 px custom font, and the next classic inverted element  - 
+// stack2_impl, face_words, face_shadow, calls fx_left(neg, ...) with
 // setTextSize(3) and no setFont(), so the 5x7 glyph it asked for came out as
 // a 138 px theme glyph smeared across the panel. Measured, not reasoned: the
 // DATE panel's month rendered as a full-panel screened blob, 4328 findings.
@@ -163,7 +163,7 @@ static GFXcanvas1 &inv_target(GFXcanvas1 &c, bool inv) {
 // `box_w`/`box_h` force the chip to a known CELL rather than to the ink. A
 // seven-segment '1' lights two segments at the right-hand edge of its cell, so
 // a chip fitted to its ink is a thin sliver next to the full-width chip of the
-// digit beside it — "13" came out as a splinter and a block. Everything else
+// digit beside it, "13" came out as a splinter and a block. Everything else
 // wants the ink, because a chip fitted to a fixed cell would leave a lit
 // margin that changes with the string.
 static void emit_negative_box(GFXcanvas1 &c, bool inv, int16_t bx, int16_t by,
@@ -192,7 +192,7 @@ static void emit_negative_box(GFXcanvas1 &c, bool inv, int16_t bx, int16_t by,
   if (y1 > chip_y1) y1 = chip_y1;
   // THE KNOCKOUT IS DILATED BY ONE PIXEL. A hollow glyph is a 1 px trace, and
   // one dark pixel inside a 3-in-4 screen is indistinguishable from the screen
-  // itself — inverted STENCIL and inverted FILLED came out as texture rather
+  // itself, inverted STENCIL and inverted FILLED came out as texture rather
   // than as digits. Widening the hole to 3 px makes them read, and it takes
   // lit pixels OFF the panel rather than adding them.
   for (int16_t y = y0; y <= y1; y++)
@@ -261,7 +261,7 @@ void fx_outline_text(GFXcanvas1 &c, const char *s, uint8_t size,
 void fx_left(GFXcanvas1 &c, const char *s, uint8_t size, int16_t x, int16_t y,
              bool hollow) {
   // Size 1 is never hollowed. A 5x7 glyph with its interior removed is
-  // scattered dots, not a letter — and at that size the lit area it would save
+  // scattered dots, not a letter, and at that size the lit area it would save
   // is a rounding error anyway.
   if (hollow && size >= 2) { fx_outline_text(c, s, size, x, y); return; }
   c.setTextSize(size);
@@ -271,12 +271,12 @@ void fx_left(GFXcanvas1 &c, const char *s, uint8_t size, int16_t x, int16_t y,
   c.print(s);
 }
 
-// OPTICAL CENTRING — the ink is centred, not the advance box.
+// OPTICAL CENTRING, the ink is centred, not the advance box.
 //
 // A GFX classic glyph occupies a 6*size cell but does not fill it, and how much
 // whitespace sits on each side is PER CHARACTER. '1' is the extreme case: it is
 // drawn towards the right of its cell, so "12" centred on its advance width
-// puts the visible ink 3 px right of the panel centre — measured, not guessed
+// puts the visible ink 3 px right of the panel centre, measured, not guessed
 // (tools/pageshot on CLOCK v5 slot0: ink 32..101, centre 66.5 against 63.5).
 // Every string built from digits of differing widths lands somewhere slightly
 // different, which reads as "the numbers are not quite centred" and is exactly
@@ -316,7 +316,7 @@ static int16_t ink_dx(const char *s, uint8_t size, int16_t x, int16_t y) {
 }
 
 // Centred in the SAFE AREA, not on the panel. Those differ by nothing at all
-// when the safe margins are equal — which they are — but writing it this way
+// when the safe margins are equal, which they are, but writing it this way
 // means a future asymmetric margin stays correct for free.
 void fx_center(GFXcanvas1 &c, const char *s, uint8_t size, int16_t dy,
                bool hollow) {
@@ -334,8 +334,8 @@ uint8_t fx_fit(const char *s, uint8_t want, int16_t avail_w) {
   return want;
 }
 
-// Two lines centred AS A BLOCK. The alternative — centring each line and then
-// nudging it with a hand-tuned dy — is what put the humidity readout a pixel
+// Two lines centred AS A BLOCK. The alternative, centring each line and then
+// nudging it with a hand-tuned dy, is what put the humidity readout a pixel
 // above the safe area and the date a pixel below it. Both were invisible on a
 // bench and would have clipped the moment the burn-in shift wandered.
 static void stack2_impl(GFXcanvas1 &c, const char *a, uint8_t sa, const char *b,
@@ -344,7 +344,7 @@ static void stack2_impl(GFXcanvas1 &c, const char *a, uint8_t sa, const char *b,
   if (inv) {
     // Smaller glyphs, and a wider gap. Two chips each padded by CHIP_PAD_Y
     // would otherwise meet in the middle of a two-line date, which the prover
-    // would report as an overlap — correctly, because on the panel it is one
+    // would report as an overlap, correctly, because on the panel it is one
     // merged block and not two lines.
     sa = inv_size(sa);
     sb = inv_size(sb);
@@ -382,7 +382,7 @@ static const uint8_t SEG_MASK[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66,
                                      0x6D, 0x7D, 0x07, 0x7F, 0x6F};
 
 // OUTLINE ONLY, and deliberately. `hollow` is derived as (style != S_FILLED),
-// so for S_SEG it is always true — the filled arm this used to carry could
+// so for S_SEG it is always true, the filled arm this used to carry could
 // never execute. Keeping it would have been dead code pretending to be a
 // feature. It is also the right call on its own merits: filled segments run
 // well over the 25% fill-factor budget the layout prover enforces, and fill
@@ -428,7 +428,7 @@ static void face_seg(GFXcanvas1 &c, uint8_t val, bool two, bool has_overlay,
   const int16_t H   = inv ? 34 : (has_overlay ? (int16_t)(SAFE_H - 10) : SAFE_H);
   int16_t total = two ? (2 * W + GAP) : W;
   int16_t x = SAFE_X0 + (SAFE_W - total) / 2;
-  // Inverted blocks are shorter than the safe height, so they get centred —
+  // Inverted blocks are shorter than the safe height, so they get centred  - 
   // except when the corner overlay is there, where they sit high and shift
   // left for the same reason every other style does.
   int16_t y = SAFE_Y0;
@@ -451,7 +451,7 @@ static void face_seg(GFXcanvas1 &c, uint8_t val, bool two, bool has_overlay,
 
 // ---- bars -----------------------------------------------------------------
 // 12 columns of 7 px with 2 px gaps is 106 px, inside the 116 px safe width.
-// The obvious 8 px column comes to 118 and overruns it by two — which is the
+// The obvious 8 px column comes to 118 and overruns it by two, which is the
 // kind of thing that looks fine on a bench and clips once the burn-in shift
 // wanders, and is exactly why the prover exists.
 // ---- shadow ---------------------------------------------------------------
@@ -459,7 +459,7 @@ static void face_seg(GFXcanvas1 &c, uint8_t val, bool two, bool has_overlay,
 // across the room and still costs well under a filled glyph.
 //
 // ONE ELEMENT, not two. The front and back copies genuinely do share pixels
-// wherever a stroke runs diagonally, and that is intended — declaring them
+// wherever a stroke runs diagonally, and that is intended, declaring them
 // separately would make the prover fail a build over a collision that is the
 // whole point of the style.
 static const int16_t SHADOW_OFF = 3;
@@ -533,7 +533,7 @@ static void face_stencil(GFXcanvas1 &c, const char *s, uint8_t size, int16_t dx,
 // Ported from firmware D (screens/theme.h, which is the design document for
 // all of this and worth reading before touching anything below).
 //
-// WHAT A THEME IS. Not a glyph trick — a TYPE SYSTEM. Five tiers of one real
+// WHAT A THEME IS. Not a glyph trick, a TYPE SYSTEM. Five tiers of one real
 // outline face, generated by D's fontgen.py, which SOLVES FOR THE PIXEL HEIGHT
 // rather than taking a point size, so "46" means the same thing in every
 // family and the themes are comparable rather than merely all present:
@@ -548,13 +548,13 @@ static void face_stencil(GFXcanvas1 &c, const char *s, uint8_t size, int16_t dx,
 // lookalike drawn with the built-in 5x7 font would be neither.
 //
 // ---------------------------------------------------------------------------
-// ⛔ THE ARCHITECTURAL TRANSLATION — FIRMWARE C HAS NO SHEET ⛔
+// ⛔ THE ARCHITECTURAL TRANSLATION, FIRMWARE C HAS NO SHEET ⛔
 // ---------------------------------------------------------------------------
 // Firmware D draws in SHEET coordinates: the four panels are windows onto one
 // 339x295 canvas, so a rule can be one line crossing the bezel and a tick
 // scale can be one instrument spanning two panels. FIRMWARE C HAS NO SUCH
 // THING. Each panel is an independent 128x64 GFXcanvas1 and this file draws
-// one widget per panel knowing nothing whatever about its neighbours — it is
+// one widget per panel knowing nothing whatever about its neighbours, it is
 // not even told which slot it is. So:
 //
 //   CH_CARD and CH_BRACKET port EXACTLY. They were already per-window in D;
@@ -580,14 +580,14 @@ static void face_stencil(GFXcanvas1 &c, const char *s, uint8_t size, int16_t dx,
 //   C cannot express that. This file is not told which panel it is drawing, so
 //   it cannot know whether to show the low ticks or the high ones, and there
 //   is no sheet to be a window onto. THE ADAPTATION: every panel carries its
-//   OWN COMPLETE minute scale — nine ticks across this panel's safe width, at
+//   OWN COMPLETE minute scale, nine ticks across this panel's safe width, at
 //   the same visual density D's sheet scale had once the bezel ate two thirds
 //   of it (~14 px pitch), filled to the same fraction of the hour.
 //
 //   WHAT IS LOST: the one-instrument illusion. In D the fill crossed the bezel
 //   and swept the sheet once per hour; here all four panels show the same
-//   scale filling in parallel. The INFORMATION is identical — how far through
-//   the hour we are, to about seven minutes — and so is the density and the
+//   scale filling in parallel. The INFORMATION is identical, how far through
+//   the hour we are, to about seven minutes, and so is the density and the
 //   3 px/2 px long-short tick treatment. What is gone is the statement that
 //   the four panels are one surface. That statement belongs to a sheet, and
 //   faking it here would mean inventing a slot number this file is not given.
@@ -633,7 +633,7 @@ enum FaceChrome : uint8_t {
 // ---- WHAT EACH LOOK COSTS THE PANEL, MEASURED ON FIRMWARE C ---------------
 // tools/layoutcheck prints this table every run ("MODE cycle fill"), worst
 // panel of the four over every value the widget can hold, against the 15%
-// Wear OS WO-P7 always-on budget. THESE ARE THE C NUMBERS, not D's — D's
+// Wear OS WO-P7 always-on budget. THESE ARE THE C NUMBERS, not D's, D's
 // theme.cpp quotes 23.5% for filled ROUNDEL and 26.0% for filled CAPSULE and
 // this build measures 29.8% and 29.2% for the same families at the same
 // generated sizes. The cause of the gap has NOT been established (D measured
@@ -656,7 +656,7 @@ enum FaceChrome : uint8_t {
 // stop is measured, reported and left to the user.
 //
 // ROUNDEL AND CAPSULE ARE THE TWO THAT COST THE MOST, and they are the same
-// two D singled out — its theme.h answers them with a CONTRAST CAP
+// two D singled out, its theme.h answers them with a CONTRAST CAP
 // (theme_wants_contrast_cap) rather than with a smaller glyph, on the argument
 // that total emitted light is what ages the stack. C has no such cap and the
 // panel-driving code that would carry one is display.cpp, which is out of
@@ -675,23 +675,23 @@ struct FaceTheme {
   int16_t track;
 };
 static const FaceTheme FTHEME[S_THEME_N] = {
-  // DIAL — Outfit numerals over a tick scale. The only theme whose chrome is
+  // DIAL, Outfit numerals over a tick scale. The only theme whose chrome is
   // also a readout. Digits are 48 px of the 52-row safe area.
   {&F_OUTFIT_B,  &F_OUTFIT_L,  &F_OUTFIT_M,  &F_OUTFIT_S,  &F_OUTFIT_BO,
    CH_RING, 2},
-  // DATASHEET — Iosevka mono with registration corner ticks. An instrument,
+  // DATASHEET, Iosevka mono with registration corner ticks. An instrument,
   // not an ornament, and the register this project already speaks.
   {&F_IOS_B,     &F_IOS_L,     &F_IOS_M,     &F_IOS_S,     &F_IOS_BO,
    CH_BRACKET, 2},
-  // QUIET — Quicksand geometric, one hairline, the widest tracking in the set.
+  // QUIET, Quicksand geometric, one hairline, the widest tracking in the set.
   {&F_QUICK_B,   &F_QUICK_L,   &F_QUICK_M,   &F_QUICK_S,   &F_QUICK_BO,
    CH_RULE, 3},
-  // ROUNDEL — Baloo 2 ExtraBold on bare glass. The fattest, most
+  // ROUNDEL, Baloo 2 ExtraBold on bare glass. The fattest, most
   // legible-across-a-room numerals here, and no chrome: at this weight any
   // rule is noise.
   {&F_BALOO_B,   &F_BALOO_L,   &F_BALOO_M,   &F_BALOO_S,   &F_BALOO_BO,
    CH_PLAIN, 1},
-  // CAPSULE — Fredoka inside a 1 px rounded card. Each panel reads as a
+  // CAPSULE, Fredoka inside a 1 px rounded card. Each panel reads as a
   // physical tile: the one theme that leans on the aperture instead of
   // ignoring it.
   {&F_FREDOKA_B, &F_FREDOKA_L, &F_FREDOKA_M, &F_FREDOKA_S, &F_FREDOKA_BO,
@@ -709,7 +709,7 @@ static const FaceTheme *theme_of(uint8_t s) {
 // ---- per-panel text, in PANEL coordinates ---------------------------------
 // D's sheet_* text primitives with the Pen taken out. The Pen existed to
 // translate sheet coordinates to panel ones; there is nothing to translate
-// here, so what is left is the measurement and centring logic — which is the
+// here, so what is left is the measurement and centring logic, which is the
 // part that was actually load-bearing.
 //
 // LAYOUT POSITIONS INK BOXES, NEVER BASELINES. A baseline-specified layout
@@ -754,7 +754,7 @@ static int16_t gfx_adv(const GFXfont *f, char ch) {
 // Letter-spaced width. Tracking is most of what makes a small all-caps label
 // look deliberate rather than cramped, and GFX has no notion of it.
 //
-// A SPACE HAS NO INK, SO IT CANNOT BE MEASURED BY ITS INK BOX — that gives it
+// A SPACE HAS NO INK, SO IT CANNOT BE MEASURED BY ITS INK BOX, that gives it
 // width zero and every tracked label comes out as one run-together word. Blanks
 // advance by the FONT's xAdvance; everything else by its ink. (D paid a whole
 // render pass to find this; it is carried over rather than rediscovered.)
@@ -854,8 +854,8 @@ static void gfx_trk_cap(GFXcanvas1 &c, const GFXfont *f, const char *s,
 
 // ---- the theme's geometry, RE-EXPRESSED AGAINST C's PANEL -----------------
 // D's theme_inset / theme_cx0..cy1 / theme_availw are stated against a sheet
-// WINDOW. A window IS the safe area of one panel — win_x0(col) is
-// SHEET_COLX[col] + SAFE_X0 — so with the sheet origin dropped these become
+// WINDOW. A window IS the safe area of one panel, win_x0(col) is
+// SHEET_COLX[col] + SAFE_X0, so with the sheet origin dropped these become
 // the safe area shrunk by the same insets, which is what is written here.
 //
 // A WINDOW'S CHROME LIVES ON THE WINDOW'S OWN EDGE, so content that also runs
@@ -876,7 +876,7 @@ static int16_t th_inset_y(const FaceTheme &t) {
 }
 
 // ---- the vertical budget, which is EXACTLY spent --------------------------
-// VERIFIED AGAINST THE SHIPPED FONT HEADERS, not taken from D's table — D's
+// VERIFIED AGAINST THE SHIPPED FONT HEADERS, not taken from D's table, D's
 // theme.h says QUIET is 50 px and the generated F_QUICK_B's '8' is 48. The
 // measured heights of the `big` tier are:
 //
@@ -887,7 +887,7 @@ static int16_t th_inset_y(const FaceTheme &t) {
 //   ROUNDEL       46       0       0      46
 //   CAPSULE       46       0       0      46
 //
-// So every family fits, and DIAL spends the area to the last row — which is
+// So every family fits, and DIAL spends the area to the last row, which is
 // why its tick scale is 3 px rather than 4 and why the rule sits ON the last
 // safe row rather than one above it.
 static int16_t th_chrome_h(const FaceTheme &t) {
@@ -899,7 +899,7 @@ static int16_t th_chrome_h(const FaceTheme &t) {
 }
 static const int16_t TH_RULE_Y = SAFE_Y1;    // the LAST safe row, not the one above
 // The numerals are centred in whatever is left ABOVE the chrome, DERIVED from
-// the measured glyph rather than from a hand-tuned drop — a constant drop is
+// the measured glyph rather than from a hand-tuned drop, a constant drop is
 // what put QUIET's tall digits a row outside the safe area in D.
 static int16_t th_clock_cy(const FaceTheme &t) {
   const int16_t ch = th_chrome_h(t);
@@ -912,7 +912,7 @@ static int16_t th_clock_cy(const FaceTheme &t) {
 
 // ---- chrome ---------------------------------------------------------------
 // Its own ELEM(), always, so the prover can see it collide with the content.
-// Drawn at NORMAL polarity even on an inverted look — see face_themed().
+// Drawn at NORMAL polarity even on an inverted look, see face_themed().
 static void th_chrome(GFXcanvas1 &c, const FaceTheme &t, uint8_t minute) {
   const int16_t ix = th_inset_x(t);
   switch (t.chrome) {
@@ -967,7 +967,7 @@ static void th_chrome(GFXcanvas1 &c, const FaceTheme &t, uint8_t minute) {
 // C ALREADY HAS A WORKING, STYLE-AGNOSTIC INVERSION and this reuses it whole:
 // the element draws into `neg`, emit_negative() composites a screened chip
 // with the glyph knocked out of it, and all of that happens BETWEEN one ELEM()
-// and the next. That timing is not incidental — the host prover snapshots and
+// and the next. That timing is not incidental, the host prover snapshots and
 // CLEARS the canvas at every element boundary, so a post-pass over the whole
 // face would invert a nearly-empty canvas on the host and a full one on the
 // device, and the prover would be proving a different program from the one
@@ -975,14 +975,14 @@ static void th_chrome(GFXcanvas1 &c, const FaceTheme &t, uint8_t minute) {
 //
 // FIRMWARE D DID EXACTLY THAT POST-PASS. Its inverted render is two passes
 // over the whole page with a global `sheet_fg` flipped to 0 in between. That
-// is unprovable here by construction, so the mechanism was NOT ported — only
+// is unprovable here by construction, so the mechanism was NOT ported, only
 // the POLICY was, and the policy is the part with the findings behind it:
 //
 //   1. THE PLATE IS BOUNDED BY THE TEXT INK, NOT BY THE PANEL. C's chip
 //      already does this.
 //   2. CHROME IS MEASURED OUT OF THE PLATE AND DRAWN AT NORMAL POLARITY.
 //      Otherwise a card or a rule spanning the panel drags the plate to full
-//      width and turns a bounded tile into a lit field — D measured 26% vs
+//      width and turns a bounded tile into a lit field, D measured 26% vs
 //      62% on that exact question. Here the chrome is simply drawn on `c`
 //      rather than on `neg`, so it never enters the ink box the chip is
 //      fitted to, and the chip is clamped off it besides (chip_clamp_reset).
@@ -994,8 +994,8 @@ static void th_chrome(GFXcanvas1 &c, const FaceTheme &t, uint8_t minute) {
 // WHICH THEMES' CHROME DOES NOT SURVIVE THIS CLEANLY: none is dropped, but
 // CAPSULE's card is the one that changes meaning. Filled, the card reads as
 // the tile's own edge with the numerals floating inside it. Inverted, there
-// are now two nested rounded shapes — the 1 px card on the boundary and the
-// lit plate inside it — and the plate, not the card, is what the eye reads as
+// are now two nested rounded shapes, the 1 px card on the boundary and the
+// lit plate inside it, and the plate, not the card, is what the eye reads as
 // the tile. The card survives as a hairline frame around it. That is the
 // honest per-panel equivalent of what D got, and it is called out here rather
 // than left for someone to notice on the glass.
@@ -1020,7 +1020,7 @@ static ThemeTiers th_tiers(const FaceTheme &t, bool inv, bool hollow) {
 // 64-88 px of the 116 px safe width and has real slack across. It is NOT
 // always enough. CAPSULE gives up 6 px of inset at each end and its weekday is
 // 83 px of tracked caps, so beside a three-character temperature there is
-// nowhere left to go, and a nudge that runs out of room silently CLAMPS —
+// nowhere left to go, and a nudge that runs out of room silently CLAMPS  - 
 // which puts the block back against the overlay it was moved off. The prover
 // caught exactly that, as CROWDED on the widest weekday of the widest theme.
 //
@@ -1075,7 +1075,7 @@ static void face_themed(GFXcanvas1 &c, const FaceTheme &t, uint8_t w,
   // 64-88 px of the 116 px safe width and has genuine slack across.
   // AND THE CHIP IS WIDER THAN THE GLYPH IT WRAPS. An inverted element is a
   // plate fitted to the ink plus CHIP_PAD_X, so it reaches further toward the
-  // corner than the numerals do — the same fact CHIP_NUDGE exists for on the
+  // corner than the numerals do, the same fact CHIP_NUDGE exists for on the
   // seven-segment block. Measuring the nudge against the ink alone put the
   // plate through the overlay on 96 screens.
   const int16_t pad = inv ? CHIP_PAD_X : (int16_t)0;
@@ -1095,8 +1095,8 @@ static void face_themed(GFXcanvas1 &c, const FaceTheme &t, uint8_t w,
     const int16_t right  = (int16_t)(centre + blockw / 2 + pad);
     // Three clear columns, not one. A tracked cap string is placed from its
     // summed ink widths and lands within a pixel of that; one clear column is
-    // inside the rounding, and the prover reported the pair as CROWDED — no
-    // clear pixel at all — on the widest weekday of the widest theme.
+    // inside the rounding, and the prover reported the pair as CROWDED, no
+    // clear pixel at all, on the widest weekday of the widest theme.
     const int16_t limit  = (int16_t)(ovx0 - 5);
     int16_t cx = centre;
     if (right > limit) cx = (int16_t)(cx - (right - limit));
@@ -1115,7 +1115,7 @@ static void face_themed(GFXcanvas1 &c, const FaceTheme &t, uint8_t w,
       if (w == W_HOUR) {
         uint8_t h = d.hour;
         if (!d.hour24) { h = (uint8_t)(d.hour % 12); if (!h) h = 12; }
-        // No leading zero on a 12-hour clock — it reads "4", not "04". The
+        // No leading zero on a 12-hour clock, it reads "4", not "04". The
         // tabular cell keeps the pair in register anyway, so a one-digit hour
         // does not move the two-digit ones.
         snprintf(b, sizeof b, d.hour24 ? "%02u" : "%u", (unsigned)h);
@@ -1123,8 +1123,8 @@ static void face_themed(GFXcanvas1 &c, const FaceTheme &t, uint8_t w,
         snprintf(b, sizeof b, "%02u", (unsigned)d.minute);
       }
       const char *s = ok ? b : "--";
-      // "--" is not in the digits-only `big` tier — it holds 0x30-0x39 and
-      // nothing else — so the RTC-unreadable path borrows the full-charset
+      // "--" is not in the digits-only `big` tier, it holds 0x30-0x39 and
+      // nothing else, so the RTC-unreadable path borrows the full-charset
       // one. Same height class, and it is the only string on this panel that
       // is not a numeral.
       const GFXfont *f = ok ? th_fit_cells(s, avail, num_lad, 3) : ti.cap;
@@ -1154,7 +1154,7 @@ static void face_themed(GFXcanvas1 &c, const FaceTheme &t, uint8_t w,
     case W_DATE: {
       // THE MONTH IS A LABEL AND THE DAY IS THE NUMBER, at two different
       // weights. Setting them at the same weight made a block that filled the
-      // whole safe height and could not coexist with a rule — it clipped the
+      // whole safe height and could not coexist with a rule, it clipped the
       // moment a theme wanted one.
       snprintf(b, sizeof b, "%u", (unsigned)d.day);
       const char *mon = FX_MON[(d.month ? d.month : 1) - 1];
@@ -1188,7 +1188,7 @@ static void face_themed(GFXcanvas1 &c, const FaceTheme &t, uint8_t w,
       break;
   }
 
-  // The corner value, at normal polarity even on an inverted look — it is a
+  // The corner value, at normal polarity even on an inverted look, it is a
   // second independent thing on the panel, not part of the plate, and putting
   // it inside the chip would either grow the plate to the corner or knock a
   // hole in it where no glyph is.
@@ -1201,14 +1201,14 @@ static void face_themed(GFXcanvas1 &c, const FaceTheme &t, uint8_t w,
 
   // LEAVE THE CANVAS AS THE CLASSIC PATHS EXPECT TO FIND IT. GFXcanvas1 keeps
   // the font pointer, and fx_left() below draws with setTextSize() and print()
-  // — which silently uses whatever custom font was left set. One line here
+  //, which silently uses whatever custom font was left set. One line here
   // instead of a defensive setFont(nullptr) scattered through six call sites.
   c.setFont(nullptr);
   chip_clamp_reset();
 }
 
 // The corner value, formatted and measured. Shares its formatting rules with
-// draw_overlay() below — including the THREE CHARACTERS, HARD clamp on the
+// draw_overlay() below, including the THREE CHARACTERS, HARD clamp on the
 // temperature, which is a layout invariant rather than a consequence of the
 // reading.
 static int16_t th_overlay_x0(GFXcanvas1 &c, const FaceTheme &t, uint8_t ov,
@@ -1234,7 +1234,7 @@ static int16_t th_overlay_x0(GFXcanvas1 &c, const FaceTheme &t, uint8_t ov,
 
 // ---- overlays -------------------------------------------------------------
 // The corner value. This is the ONLY place two independent things share a
-// panel, so it is the only real overlap risk on the device — and the reason
+// panel, so it is the only real overlap risk on the device, and the reason
 // the prover walks every widget x style x overlay combination rather than
 // spot-checking the ones that look risky.
 //
@@ -1269,13 +1269,13 @@ static void draw_overlay(GFXcanvas1 &c, uint8_t ov, const FaceData &d) {
 }
 
 // A text widget rendered in whichever glyph style is selected. SHADOW and
-// STENCIL do their own centring — they have to, because the shadow offset
-// changes the block's width — so they cannot go through fx_center.
+// STENCIL do their own centring, they have to, because the shadow offset
+// changes the block's width, so they cannot go through fx_center.
 // THE OVERLAY NUDGE, and why it moves sideways rather than up.
 //
 // The shadow offset grows the glyph block down and to the right, straight at
 // the corner overlay: the prover reported 122 screens with no clear pixel
-// between the two. The obvious fix is to lift the block, and it is wrong — at
+// between the two. The obvious fix is to lift the block, and it is wrong, at
 // size 7 the glyph already fills the 52 px safe height exactly, so lifting it
 // pushed 8760 screens out through the TOP. The prover caught that immediately,
 // which is the entire reason it exists.
@@ -1289,7 +1289,7 @@ static void draw_overlay(GFXcanvas1 &c, uint8_t ov, const FaceData &d) {
 static const int16_t OVERLAY_NUDGE = 4;
 
 // INVERTED FLIPS `hollow`, and that is the point rather than an accident.
-// OUTLINE inverted knocks the glyph out SOLID — a dark digit on a lit chip,
+// OUTLINE inverted knocks the glyph out SOLID, a dark digit on a lit chip,
 // the look everyone means by "inverted", and the lower-fill of the two because
 // a solid glyph removes more lit pixels than a 1 px trace does. FILLED
 // inverted knocks out the OUTLINE instead, which reads as an embossed digit.
@@ -1343,7 +1343,7 @@ void face_render(GFXcanvas1 &c, uint8_t w, uint8_t s, uint8_t ov,
   // whole of a bug this file has now had twice. fx_base_style() clears 0x20
   // and 0x40 both; reading fx_is_hollow(s) after the assignment below always
   // answers false, so the five OUTLINE stops of the MODE cycle rendered as
-  // their FILLED twins — pixel for pixel, which is why nothing failed. The
+  // their FILLED twins, pixel for pixel, which is why nothing failed. The
   // prover's per-stop fill table is what showed it: "DIAL OUT" and "DIAL"
   // reported the same 21.3% to the tenth.
   const bool hollow_tier = fx_is_hollow(s);
@@ -1353,7 +1353,7 @@ void face_render(GFXcanvas1 &c, uint8_t w, uint8_t s, uint8_t ov,
   // a custom font set on the canvas, and print() would silently keep using it.
   c.setFont(nullptr);
   c.setTextWrap(false);
-  // Reset every call, so nothing a previous render did can reach this one —
+  // Reset every call, so nothing a previous render did can reach this one  - 
   // which is what "faces.cpp is pure" has to mean for the prover.
   chip_clamp_reset();
   face_scratch_reset();
@@ -1383,7 +1383,7 @@ void face_render(GFXcanvas1 &c, uint8_t w, uint8_t s, uint8_t ov,
     case W_HOUR: {
       uint8_t h = d.hour;
       if (!d.hour24) { h = (uint8_t)(d.hour % 12); if (!h) h = 12; }
-      // No leading zero on a 12-hour clock — it reads "4", not "04".
+      // No leading zero on a 12-hour clock, it reads "4", not "04".
       if (d.hour24) snprintf(b, sizeof(b), "%02u", (unsigned)h);
       else          snprintf(b, sizeof(b), "%u", (unsigned)h);
       draw_numeric(c, s, h, d.hour24 ? 23 : 12, h >= 10, hollow, b,
@@ -1416,7 +1416,7 @@ void face_render(GFXcanvas1 &c, uint8_t w, uint8_t s, uint8_t ov,
       draw_text_styled(c, b, 4, s, hollow, "year", ov != OV_NONE, inv);
       break;
     case W_WEEKDAY:
-      // "WED" at size 5 is 3*30-5 = 85 px wide and 35 tall — comfortably
+      // "WED" at size 5 is 3*30-5 = 85 px wide and 35 tall, comfortably
       // inside 116 x 52, and a size larger than the old layout managed.
       draw_text_styled(c, FX_WDAY[d.weekday % 7], 5, s, hollow, "weekday",
                        ov != OV_NONE, inv);
@@ -1538,13 +1538,13 @@ const char *overlay_name(uint8_t o) { return o < OV_COUNT ? OVERLAY_NAME[o] : "?
 bool widget_allows(uint8_t w, uint8_t s) {
   // The INVERT bit is a COMPOSITING mode, not a glyph style, so it is decided
   // separately from what the widget can draw. Every widget already has a
-  // canonical rendering for a style it cannot honour — a DATE is always two
-  // stacked lines whatever the style says — and that rendering inverts fine.
+  // canonical rendering for a style it cannot honour, a DATE is always two
+  // stacked lines whatever the style says, and that rendering inverts fine.
   // Without this, render_clock()'s fallback would strip the bit and half the
   // MODE stops would come up inverted on two panels and normal on the other
   // two, which is the bug and not the feature.
   if (fx_is_inverted(s)) return widget_allows(w, S_OUTLINE);
-  // AND THE HOLLOW BIT IS A TIER SELECTION, not a glyph style — `bigo` instead
+  // AND THE HOLLOW BIT IS A TIER SELECTION, not a glyph style, `bigo` instead
   // of `big`, the same glyph at the same pixel height. It has to be stripped
   // here for exactly the reason INVERT is, and the failure when it is not was
   // measured rather than argued: S_DIAL | S_HOLLOW is 0x26, which trips the
@@ -1553,11 +1553,11 @@ bool widget_allows(uint8_t w, uint8_t s) {
   // FIVE OF THE TWELVE MODE STOPS RENDERED AS THE DEFAULT FACE and the prover
   // passed the whole way, because a screen that draws the wrong thing
   // correctly is not an overlap. What caught it was the per-stop fill table
-  // reading 8.1% — OUTLINE's own number — for all five of them.
+  // reading 8.1%, OUTLINE's own number, for all five of them.
   if (fx_is_hollow(s)) return widget_allows(w, fx_base_style(s));
   if (w >= W_COUNT || s >= S_COUNT) return false;
   // A THEME IS A CLOCK FACE, AND ONLY A CLOCK FACE. The five ported families
-  // carry four layouts between them — hour, minute, weekday, date — which is
+  // carry four layouts between them, hour, minute, weekday, date, which is
   // exactly the set CLOCK_W offers, and they are the four D authored. Nothing
   // in the port says what a themed SEC BAR or a themed LOGO should look like,
   // and a menu that offers a choice which silently falls back to something
@@ -1570,7 +1570,7 @@ bool widget_allows(uint8_t w, uint8_t s) {
       return true;                                    // 0-59 numerics: all six
     case W_TEMP: case W_HUMIDITY:
       // Composed of a value and a unit stacked as two elements, which the
-      // single-string glyph styles cannot express — so only the two that go
+      // single-string glyph styles cannot express, so only the two that go
       // through stack2.
       return s == S_OUTLINE || s == S_FILLED;
     case W_YEAR:

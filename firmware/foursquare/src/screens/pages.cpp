@@ -1,4 +1,4 @@
-// pages.cpp — the four pages, all pure. See pages.h for the grammar.
+// pages.cpp, the four pages, all pure. See pages.h for the grammar.
 #include "pages.h"
 #include "anim.h"
 #include "display.h"
@@ -7,7 +7,7 @@
 
 // The order MODE cycles. OUTLINE first because it is both the look that was
 // picked and the lowest-fill one, so the default costs the panel the least.
-// All the normal looks first, then the same looks again as NEGATIVES — a lit
+// All the normal looks first, then the same looks again as NEGATIVES, a lit
 // chip with the glyph knocked out of it (faces.cpp, "inverted looks"). The
 // invert is a bit on the style rather than a second set of enum values, so the
 // stored setting in the EEPROM keeps meaning exactly what it always meant, and
@@ -16,14 +16,14 @@
 //
 // ---- WHAT IS AND IS NOT IN THIS TABLE, 2026-08-20 -------------------------
 // SEGMENT, SHADOW, STENCIL and WORDS were REMOVED FROM THE CYCLE on the user's
-// ruling — "none of these shadow bullshit segments". They are removed from
+// ruling, "none of these shadow bullshit segments". They are removed from
 // HERE and from nowhere else: S_SEG, S_SHADOW, S_STENCIL and S_WORDS keep
 // their enum values in settings/store.h and their renderers in faces.cpp still
 // compile and are still proven. The enum is stored in EEPROM, so renumbering
 // it to close the gap would silently relabel every saved record.
 //
 // In their place are the five type-system themes ported from firmware D. Those
-// are a FAMILY plus its CHROME rather than a glyph treatment — see the FTHEME
+// are a FAMILY plus its CHROME rather than a glyph treatment, see the FTHEME
 // table at the top of faces.cpp for what each one is and what the port had to
 // change to live without firmware D's sheet.
 const uint8_t CLOCK_STYLES[] = {
@@ -59,7 +59,7 @@ static const uint8_t CLOCK_OV[4] = { OV_NONE, OV_SECONDS, OV_NONE, OV_NONE };
 
 // ============================================================== helpers ====
 
-// Three lines centred as a block, same contract as stack2 — each line its own
+// Three lines centred as a block, same contract as stack2, each line its own
 // element so the prover can see them separately, and the BLOCK centred rather
 // than each line nudged into place.
 static void stack3(GFXcanvas1 &c,
@@ -110,7 +110,7 @@ static void render_clock(GFXcanvas1 &c, uint8_t slot, uint8_t variant,
                          const PageData &d) {
   uint8_t style = CLOCK_STYLES[variant % CLOCK_STYLE_N];
   uint8_t w = CLOCK_W[slot & 3];
-  // Not every widget can honour every style — DATE is two stacked elements, so
+  // Not every widget can honour every style, DATE is two stacked elements, so
   // a single-string glyph style has nothing to apply to. Falling back keeps
   // the panel legible instead of blank, and widget_allows() is the same
   // predicate the prover walks, so this can never render something unproven.
@@ -189,7 +189,7 @@ static void render_sensor(GFXcanvas1 &c, uint8_t slot, uint8_t variant,
 // No longer a page: UP is the stopwatch since 2026-10-15. This renderer stays
 // because the showreel's STOCKS segment draws with it (see showreel_draw).
 // SYMBOL · PRICE · ARROW+CHANGE, laid out as a TABLE ROW and not as centred
-// text. NO SPARKLINE, NO GRAPH, and deliberately so — a 116x52 window cannot
+// text. NO SPARKLINE, NO GRAPH, and deliberately so, a 116x52 window cannot
 // hold a price history at a size anyone can read, and the version that tried
 // was rejected on sight.
 //
@@ -285,7 +285,7 @@ static void mkt_arrow(GFXcanvas1 &c, int16_t bp) {
   }
 }
 
-// Right-aligned to SAFE_X1 — the shared numeric column.
+// Right-aligned to SAFE_X1, the shared numeric column.
 static void mkt_right(GFXcanvas1 &c, const char *s, uint8_t size, int16_t y,
                       bool hollow, const char *tag) {
   ELEM(tag);
@@ -305,7 +305,7 @@ static void render_market(GFXcanvas1 &c, uint8_t slot, uint8_t variant,
   // THE WIDTH IT IS FITTED AGAINST IS FIVE CHARACTERS AND NOT THE REST OF THE
   // ROW, which is deliberate: every symbol this thing quotes is three or four
   // letters, and the sym field is allowed to be size 2 for as long as that
-  // holds. Anything longer — the prover sweeps ABCDEFG through here — steps
+  // holds. Anything longer, the prover sweeps ABCDEFG through here, steps
   // down to size 1 rather than eating 420 lit pixels of the fill budget on the
   // one input nobody will ever type.
   ELEM("sym");
@@ -319,13 +319,13 @@ static void render_market(GFXcanvas1 &c, uint8_t slot, uint8_t variant,
     return;
   }
 
-  // Basis points, so a percent prints exactly without float formatting — the
+  // Basis points, so a percent prints exactly without float formatting, the
   // same reason the price arrives as a string. See pages.h.
   //
   // THE PRECISION FALLS AWAY AS THE NUMBER GROWS, and that is a width
   // decision, not a taste one: a fixed "%d.%02u%%" runs to eight characters at
   // the int16 limit ("+320.00%"), and eight characters at size 2 is 425 lit
-  // pixels of a 1228 px screen budget — the change field alone would cost more
+  // pixels of a 1228 px screen budget, the change field alone would cost more
   // than the price. Two decimals under 10%, one under 100%, none above, caps
   // the field at six characters, and nobody has ever needed to know that a
   // stock is up 320.00% rather than 320%.
@@ -426,7 +426,7 @@ static void render_anim(GFXcanvas1 &c, uint8_t slot, uint8_t variant,
 }
 
 // ===========================================================================
-// THE SHOWREEL — the segmented attract-mode loop. See pages.h for the map.
+// THE SHOWREEL, the segmented attract-mode loop. See pages.h for the map.
 // ===========================================================================
 #include "wxdemo.h"
 
@@ -469,8 +469,8 @@ bool showclock_blank_ok(uint8_t slot, uint16_t tick) {
 
 // ---- the sensors segment ---------------------------------------------------
 // One metric per panel, big: TL temperature, TR humidity, BL ambient light,
-// BR uptime. The values are LIVE — this is the segment that proves the board
-// is a real instrument and not a slideshow — and the compositions are the
+// BR uptime. The values are LIVE, this is the segment that proves the board
+// is a real instrument and not a slideshow, and the compositions are the
 // readings page's own (stack2, hollow, fx_fit), so the showcase and the page
 // cannot drift apart in style.
 static void sr_sensors(GFXcanvas1 &c, uint8_t slot, uint16_t ts,
@@ -511,8 +511,8 @@ static void sr_sensors(GFXcanvas1 &c, uint8_t slot, uint16_t ts,
 // ---- the weather segment ---------------------------------------------------
 // One day per panel from the baked block in wxdemo.h: label on top, the
 // animated sky in the WX_BOX band, the temperature underneath. The three
-// bands are disjoint by construction — label rows end at 20, the box is
-// 22..41, the temperature starts at 43 — which is what lets the sky animate
+// bands are disjoint by construction, label rows end at 20, the box is
+// 22..41, the temperature starts at 43, which is what lets the sky animate
 // under the overlap law without ever negotiating with the text.
 static void sr_weather(GFXcanvas1 &c, uint8_t slot, uint16_t ts) {
   if (ts < slot) return;                            // staggered arrival
@@ -528,7 +528,7 @@ static void sr_weather(GFXcanvas1 &c, uint8_t slot, uint16_t ts) {
           (int16_t)(SAFE_X0 + (SAFE_W - fx_text_w(b, 2)) / 2), 43, true);
 }
 
-// The segment map — SR_AT_* — lives in pages.h, exported for the prover's
+// The segment map, SR_AT_*, lives in pages.h, exported for the prover's
 // targeted data-domain sweeps.
 
 void showreel_draw(GFXcanvas1 &c, uint8_t slot, uint16_t tick,
@@ -548,7 +548,7 @@ void showreel_draw(GFXcanvas1 &c, uint8_t slot, uint16_t tick,
     sr_weather(c, slot, (uint16_t)(t - SR_AT_WX));
   else if (t < SR_AT_HEART) {
     // The markets page's own renderer over whatever quotes the snapshot
-    // carries — on the demo build, the baked walk. Ticker, price, hollow
+    // carries, on the demo build, the baked walk. Ticker, price, hollow
     // arrow; deliberately NO graphs.
     if ((uint16_t)(t - SR_AT_STK) >= (uint16_t)(slot * 2))
       render_market(c, slot, 0, d);
@@ -582,8 +582,8 @@ bool showreel_blank_ok(uint8_t slot, uint16_t tick, const PageData &d) {
 
 // =========================================================== the settings ===
 // ONE ITEM PER PANEL, and the selected one carries a bar along its bottom
-// edge. The alternative — a scrolling list on one panel with the other three
-// idle — throws away three quarters of the display to imitate a device that
+// edge. The alternative, a scrolling list on one panel with the other three
+// idle, throws away three quarters of the display to imitate a device that
 // only has one screen. Here every panel is a row, and which row is live is a
 // property you can read from the other side of the room.
 
@@ -672,7 +672,7 @@ static void render_settings(GFXcanvas1 &c, uint8_t slot, const PageData &d) {
 
   // ASK FOR 4 AND LET fx_fit DECIDE, rather than hardcoding a size that
   // happens to work. Size 4 is the largest the band can hold (28 px of 37) and
-  // the longest value, "22:30", comes to exactly the 116 px of safe width —
+  // the longest value, "22:30", comes to exactly the 116 px of safe width  - 
   // legal, and the prover is what says so rather than this arithmetic. Short
   // values get the full 4; anything longer that arrives later steps itself
   // down instead of running out through the side of the safe area silently,
@@ -726,7 +726,7 @@ void page_render(GFXcanvas1 &c, uint8_t page, uint8_t slot, uint8_t variant,
   variant = (uint8_t)(variant % page_variants(page));
 
   // The clock delegates to face_render, which clears for itself. Everything
-  // else clears here, so no page can inherit pixels from the one before it —
+  // else clears here, so no page can inherit pixels from the one before it  - 
   // the same assumption the prover makes when it snapshots elements.
   if (page == PG_CLOCK) { render_clock(c, slot, variant, d); return; }
   // So does the stopwatch on its two digit panels; the other two are cleared

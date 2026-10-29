@@ -1,4 +1,4 @@
-// demo.h — THE ONE PLACE THAT SAYS WHAT A DEMO BUILD IS.
+// demo.h, THE ONE PLACE THAT SAYS WHAT A DEMO BUILD IS.
 //
 // A demo build is the shelf firmware with the radio taken out and a few
 // defaults leaned on. It is a BUILD FLAG, not a fork: every line below is
@@ -8,8 +8,8 @@
 //
 // THIS IS FIRMWARE C's COPY. The demo is built on C, not on D, because C is
 // the firmware the device actually shipped with and the one whose grammar the
-// user knows: EACH BUTTON OWNS A PAGE — MODE the clock, SET the readings, UP
-// the stopwatch, DOWN the animations — and pressing a button again cycles that
+// user knows: EACH BUTTON OWNS A PAGE, MODE the clock, SET the readings, UP
+// the stopwatch, DOWN the animations, and pressing a button again cycles that
 // page's variants. D replaced that with a named picker, which is a better
 // argument and the wrong product for a demo.
 //
@@ -28,7 +28,7 @@
 
 // ---- 1. NO RADIO, AT ALL ---------------------------------------------------
 // net_begin() is never called, so the WiFi task is never created, the driver
-// is never initialised and g_st stays zeroed — which is NET_OFF, the state the
+// is never initialised and g_st stays zeroed, which is NET_OFF, the state the
 // rest of the firmware already knows how to render as "no network". Nothing
 // downstream needed a special case: the sensor page's WiFi row, the LED
 // column's join/AP states and the market fetch are all already conditioned on
@@ -43,14 +43,14 @@
 // These are applied TWICE and the second time is the one that matters.
 //
 // settings_defaults() sets them, which covers a board with no stored record.
-// But the ring in the 24LC256 SURVIVES A FLASH — that is its whole point, and
+// But the ring in the 24LC256 SURVIVES A FLASH, that is its whole point, and
 // it means a board that has been used before comes up on ITS record, not on
 // these, and would show Celsius at whatever brightness it was left on. So
 // demo_force() below is called right after settings_load() and re-asserts the
 // handful of fields the demo is actually promising. Everything else stays the
 // user's.
 //
-// FAHRENHEIT. temp_unit 1 = F, and it is global — every temperature on the
+// FAHRENHEIT. temp_unit 1 = F, and it is global, every temperature on the
 // device follows it.
 #define DEMO_TEMP_UNIT 1
 

@@ -34,7 +34,7 @@ bool ee_read(uint16_t addr, uint8_t *buf, uint16_t len) {
 }
 
 // ACK POLLING, not a fixed delay. After a write the part stops acknowledging
-// until its internal cycle finishes — typically 3-5 ms but specified up to 5
+// until its internal cycle finishes, typically 3-5 ms but specified up to 5
 // and longer when warm. Polling returns as soon as it is genuinely ready and
 // cannot silently corrupt the next write by being optimistic.
 static bool ee_wait_ready() {
@@ -72,7 +72,7 @@ bool ee_write_page(uint16_t addr, const uint8_t *buf, uint8_t len) {
 //     u16 crc    CRC16-CCITT over seq, len and payload
 //     u8  payload[56]
 // A torn write leaves a bad CRC on the newest slot, and load falls back to the
-// previous one — so a power cut mid-save costs the last change, never the
+// previous one, so a power cut mid-save costs the last change, never the
 // whole configuration.
 
 static const uint16_t SLOT_SZ  = 64;
@@ -134,12 +134,12 @@ bool settings_load() {
   settings_defaults(cfg);
   ee_ok = ee_present();
   if (!ee_ok) {
-    Serial.println("# EEPROM U3 not found — settings are defaults, not saved");
+    Serial.println("# EEPROM U3 not found, settings are defaults, not saved");
     return false;
   }
   // ONE PASS. Read every header once into RAM, then work from that.
   // The previous version re-walked all 128 slots for every corrupt record it
-  // found — 16,384 header reads worst case, in setup(), before the watchdog is
+  // found, 16,384 header reads worst case, in setup(), before the watchdog is
   // even running. A marginal bus turned that into minutes of apparently dead
   // board with no serial output.
   uint32_t seqs[N_SLOTS];
@@ -162,7 +162,7 @@ bool settings_load() {
   if (read_failed) {
     // Refuse to save rather than risk corrupting the ring from a bad read.
     ee_ok = false;
-    Serial.println("# EEPROM reads failing — running on defaults, NOT saving");
+    Serial.println("# EEPROM reads failing, running on defaults, NOT saving");
     return false;
   }
 
@@ -191,7 +191,7 @@ bool settings_load() {
     Serial.println(" is corrupt, falling back");
     seqs[best_i] = 0xFFFFFFFFUL;          // drop it and try the next-highest
   }
-  Serial.println("# EEPROM has no valid settings yet — using defaults");
+  Serial.println("# EEPROM has no valid settings yet, using defaults");
   return false;
 }
 
@@ -240,6 +240,6 @@ void settings_tick() {
 
 uint16_t settings_writes() { return n_writes; }
 
-// The widget/style name tables and widget_allows() live in faces.cpp — they
+// The widget/style name tables and widget_allows() live in faces.cpp, they
 // describe what a widget IS, which is a rendering fact, and keeping them there
 // means the host-side prover links them without dragging in Wire.

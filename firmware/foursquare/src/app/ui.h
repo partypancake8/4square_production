@@ -1,4 +1,4 @@
-// ui.h — version A: buttons, page selection, and deciding what to repaint.
+// ui.h, version A: buttons, page selection, and deciding what to repaint.
 //
 // THE GRAMMAR, in one sentence:
 //   each button owns a page, and pressing it again cycles a variant of it.
@@ -53,7 +53,7 @@ bool ui_is_night(const RtcTime &t);
 bool ui_is_screens_off(const RtcTime &t);
 
 // Inject a button press from the serial interface. Same path as a real press,
-// so it exercises the actual state machine rather than a parallel one — which
+// so it exercises the actual state machine rather than a parallel one, which
 // is what makes it a usable substitute while SW1-SW4 are unfitted. The long
 // press must be injectable too, because holding SET is the ONLY way into the
 // settings page and there is no switch to hold.

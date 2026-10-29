@@ -1,4 +1,4 @@
-// faces.h — what a screen shows, and how it is drawn.
+// faces.h, what a screen shows, and how it is drawn.
 //
 // EVERYTHING IN HERE IS PURE. A face is handed a GFXcanvas1 (plain RAM) and a
 // snapshot of the data; it cannot reach I2C, cannot read a global, cannot know
@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include "../settings/store.h"
 
-// A snapshot, not a live reference — a face must render the same pixels every
+// A snapshot, not a live reference, a face must render the same pixels every
 // time it is called with the same input, or the prover proves nothing.
 struct FaceData {
   uint8_t  hour;        // 0-23, always. 12-hour is a presentation choice.
@@ -45,7 +45,7 @@ inline void ELEM(const char *name) { if (face_elem_hook) face_elem_hook(name); }
 // MODE cycles the clock's look, and half those looks are NEGATIVES: a lit chip
 // with the glyph knocked out of it. That is expressed as a bit OR'd onto a
 // Style rather than as six more enum values, because the stored setting in the
-// EEPROM is a Style and must keep meaning exactly what it meant before —
+// EEPROM is a Style and must keep meaning exactly what it meant before  - 
 // inversion is a compositing mode the MODE button applies, not a new glyph.
 //
 // 0x40 is chosen to sit clear of S_COUNT (6 when this was written, 11 since
@@ -55,7 +55,7 @@ static const uint8_t S_INVERT = 0x40;
 // ---- the OUTLINE variant of a themed face ---------------------------------
 // The five ported families each ship TWO display tiers: `big`, a solid
 // numeral, and `bigo`, a TRUE closed outline of the same glyph (the
-// thresholded form minus its own erosion — not a stroke font, which is why its
+// thresholded form minus its own erosion, not a stroke font, which is why its
 // counters come out as loops rather than as a dashed fragment).
 //
 // So "outline vs filled" for a themed face is not a second design, it is the
@@ -77,7 +77,7 @@ inline bool    fx_is_hollow(uint8_t s)   { return (s & S_HOLLOW) != 0; }
 // ---- rendering ------------------------------------------------------------
 // The one entry point. Draws widget `w` in style `s` with corner overlay `ov`.
 // The canvas is cleared first, so a face cannot inherit pixels from the last
-// frame — another thing the prover would otherwise have to assume.
+// frame, another thing the prover would otherwise have to assume.
 void face_render(GFXcanvas1 &c, uint8_t w, uint8_t s, uint8_t ov,
                  const FaceData &d);
 

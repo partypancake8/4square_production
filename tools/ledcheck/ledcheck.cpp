@@ -1,4 +1,4 @@
-// ledcheck — the LED prover, a gate in the same sense the layout, store, graph
+// ledcheck, the LED prover, a gate in the same sense the layout, store, graph
 // and network provers are gates.
 //
 // WHY THIS EXISTS. On 2026-08-19 the user's report of the LED layer was "really
@@ -7,7 +7,7 @@
 // amount of careful reading catches TWICE:
 //
 //   1. sensors.cpp blanked the whole strip for 25 ms, once a second, forever,
-//      to read the LDR — a black notch punched into every animation.
+//      to read the LDR, a black notch punched into every animation.
 //   2. The temporal dither in led_tick() is a 60 fps mechanism, and the real
 //      cadence on the animation page is nearer 10 Hz, so it was generating the
 //      flicker it exists to remove.
@@ -15,7 +15,7 @@
 //
 // Every one of those is a statement about NUMBERS OVER TIME, which is exactly
 // what a host prover can see and a person staring at three LEDs cannot. So this
-// compiles the FIRMWARE'S OWN leds.cpp — the source that ships — against a host
+// compiles the FIRMWARE'S OWN leds.cpp, the source that ships, against a host
 // model of the WS2812 (shim/Adafruit_NeoPixel.h), drives it at the design rate
 // AND at the degraded rate the panels really leave it, and asserts:
 //
@@ -41,7 +41,7 @@
 //   - the human question. "4.5 units per millisecond is smooth" is a judgement
 //     (see SLEW_MAX_PER_MS below for how it was derived); the prover only holds
 //     the code to it.
-//   - disp_light_window(), which lives in display.cpp and is modelled here —
+//   - disp_light_window(), which lives in display.cpp and is modelled here  - 
 //     see the note on it below.
 #include <stdio.h>
 #include <string.h>
@@ -68,12 +68,12 @@ int     neo_pin         = -1;
 
 // ---------------------------------------------------------------------------
 // THE ONE MODELLED FUNCTION. disp_light_window() lives in display.cpp, which
-// drags in Adafruit_SSD1306, bus.cpp and the whole panel stack — none of which
+// drags in Adafruit_SSD1306, bus.cpp and the whole panel stack, none of which
 // has anything to do with what is being proved here. What leds.cpp actually
 // wants from it is "the ambient window", and every test below holds the ambient
 // reading at an END of that window (0 or 4095), where the exact endpoints
 // cannot change the answer. So it is modelled, deliberately and visibly, and
-// the prover asserts nothing about the window itself — that belongs to the
+// the prover asserts nothing about the window itself, that belongs to the
 // display layer, which owns it.
 void disp_light_window(uint16_t &lo, uint16_t &hi) { lo = 5; hi = 109; }
 
@@ -142,7 +142,7 @@ static void quiesce(uint32_t dt) {
 //
 // WHY 90 ms IS "SMOOTH". It is about five frames at the 60 fps the code intends
 // and one frame at the ~10 Hz the animation page actually delivers, so nothing
-// in the column can ever appear or vanish inside a single delivered frame —
+// in the column can ever appear or vanish inside a single delivered frame  - 
 // which is the definition of the step the user was seeing. It is also short
 // enough that a button acknowledgement still reads as instant: 90 ms is at the
 // bottom of the range people report as "immediate". The old code's worst case
@@ -154,7 +154,7 @@ static int slew_bound(uint32_t dt_ms) {
 }
 
 // Hue families, from the emitted RGB and nothing else. "Dominant" means clearly
-// ahead of BOTH other channels — a 25% margin, so a near-white or near-grey
+// ahead of BOTH other channels, a 25% margin, so a near-white or near-grey
 // frame belongs to no family and cannot trip the adjacency rule by rounding.
 static bool green_dom(int r, int g, int b) { return g > 0 && g * 4 > r * 5 && g * 4 > b * 5; }
 static bool blue_dom (int r, int g, int b) { return b > 0 && b * 4 > r * 5 && b * 4 > g * 5; }
@@ -264,7 +264,7 @@ static const uint32_t RATES[3] = { 1, 16, 100 };
 // animation page really delivers, and a gait that is only smooth at 60 fps has
 // not solved the user's problem.
 static void t_smoothness() {
-  printf("smoothness — every state, at 1 ms, 16 ms and 100 ms\n");
+  printf("smoothness, every state, at 1 ms, 16 ms and 100 ms\n");
   for (int ri = 0; ri < 3; ri++) {
     uint32_t dt = RATES[ri];
     int bound = slew_bound(dt);
@@ -304,7 +304,7 @@ static void t_smoothness() {
 // seam. The seam is the same class of bug as the square wave: a shape that is
 // beautiful for 1699 ms and then teleports.
 static void t_loops() {
-  printf("loop seams — a wrap must be periodic and continuous\n");
+  printf("loop seams, a wrap must be periodic and continuous\n");
   for (int i = 0; i < N_STATES; i++) {
     const StateDesc &d = STATES[i];
     if (!d.period) continue;
@@ -363,7 +363,7 @@ static void t_loops() {
 // blue->green pairing lived: WIFI_UP (cyan) -> CONFIRM, and WIFI_JOINING's cyan
 // comet -> CONFIRM, both of which were one frame apart.
 static void t_transitions() {
-  printf("transitions — every ordered pair of states\n");
+  printf("transitions, every ordered pair of states\n");
   for (int ri = 1; ri < 3; ri++) {            // 16 ms and 100 ms
     uint32_t dt = RATES[ri];
     int bound = slew_bound(dt);
@@ -376,7 +376,7 @@ static void t_transitions() {
         uint32_t t0 = (uint32_t)host_millis;
         std::vector<Frame> f; std::vector<uint32_t> tv;
         // Let A establish itself, then assert B on top of it. B may or may not
-        // win the priority order — either way the pair is exercised.
+        // win the priority order, either way the pair is exercised.
         led_hold((LedStatus)STATES[a].s, true);
         for (uint32_t e = 0; e <= 900; e += dt) {
           tick_at(t0 + e, AMB_FULL, false); f.push_back(readout()); tv.push_back(e);
@@ -411,14 +411,14 @@ static void t_transitions() {
   }
 }
 
-// THE DITHER LAW — cause (2) of the choppiness, as an assertion.
+// THE DITHER LAW, cause (2) of the choppiness, as an assertion.
 //
 // Held OTA at 100% is the only genuinely CONSTANT gait in the file: g_bar fills
 // all three and stops. So the input to the dither is a constant, and what comes
 // out says everything. led_bright is set low on purpose: that is where the
 // dither actually does something, and where its failure mode lives.
 static void t_dither() {
-  printf("dither — a constant input must give a constant output at the real rate\n");
+  printf("dither, a constant input must give a constant output at the real rate\n");
   uint8_t saved = cfg.led_bright;
   cfg.led_bright = 20;
 
@@ -437,7 +437,7 @@ static void t_dither() {
   }
   led_hold(LED_OTA_ACTIVE, false);
   CHECK(moved == 0, "at 100 ms a constant gait must produce a bit-exact "
-                    "constant frame — any movement is the 10 Hz dither strobe");
+                    "constant frame, any movement is the 10 Hz dither strobe");
 
   // Design rate: the dither is the right tool and must still be doing its job.
   quiesce(16);
@@ -455,7 +455,7 @@ static void t_dither() {
                           "one LSB");
   bool varies = false;
   for (size_t i = 1; i < f.size(); i++) if (f[i] != f[0]) { varies = true; break; }
-  CHECK(varies, "at 16 ms the dither must actually be running — a dither that "
+  CHECK(varies, "at 16 ms the dither must actually be running, a dither that "
                 "is off everywhere passes the law above for the wrong reason");
   cfg.led_bright = saved;
 }
@@ -464,7 +464,7 @@ static void t_dither() {
 // while STAYING ASSERTED. held_since is stamped only on the false->true edge,
 // so a fault that flickers cannot re-arm its own budget.
 static void t_budgets() {
-  printf("hold budgets — a held state is a notification, not a status bar\n");
+  printf("hold budgets, a held state is a notification, not a status bar\n");
   for (uint8_t s = 1; s < LED_COUNT; s++) {
     char msg[120];
     if (led_oneshot_ms(s) == 0) {
@@ -488,7 +488,7 @@ static void t_budgets() {
   CHECK(!lit, "a lapsed hold must stop being RENDERED");
   CHECK(led_is_dark(), "a lapsed hold must stop driving the wire at all");
   // Still asserted: re-arming is only possible on a fresh false->true edge.
-  led_hold(LED_FAULT_I2C, true);                 // no edge — already true
+  led_hold(LED_FAULT_I2C, true);                 // no edge, already true
   for (uint32_t e = cap + 2016; e <= cap + 3000; e += 16) tick_at(t0 + e, AMB_FULL, false);
   f = readout(); lit = false; for (int k = 0; k < 9; k++) if (f[k]) lit = true;
   CHECK(!lit, "re-asserting a still-true hold must not re-arm its budget");
@@ -496,9 +496,9 @@ static void t_budgets() {
 }
 
 // GAMMA EXACTLY ONCE, against a reference written here from scratch. The level
-// and colour are duplicated from leds.cpp on purpose — see the STATES note.
+// and colour are duplicated from leds.cpp on purpose, see the STATES note.
 static void t_gamma() {
-  printf("gamma — applied exactly once, on the master scalar\n");
+  printf("gamma, applied exactly once, on the master scalar\n");
   // LED_MENU is C_AMBER (255,120,0) running g_ember: g_breathe(t, 4200, 26, 74).
   // At t = 2100 the triangle is at its peak, so the level is exactly 74.
   const int COL[3] = {255, 120, 0};
@@ -534,7 +534,7 @@ static void t_gamma() {
     }
     char msg[140];
     snprintf(msg, sizeof msg,
-             "at led_bright %d the top LED must be (%d,%d,%d) — gamma once",
+             "at led_bright %d the top LED must be (%d,%d,%d), gamma once",
              B, f[0], f[1], f[2]);
     CHECK(all_ok, msg);
     if (any_diff) differs_from_double++;
@@ -546,10 +546,10 @@ static void t_gamma() {
 }
 
 // The headroom the comment in led_tick() claims. The one-expression form it
-// replaced peaked at 4,261,413,375 against a uint32 ceiling of 4,294,967,295 —
+// replaced peaked at 4,261,413,375 against a uint32 ceiling of 4,294,967,295  - 
 // 0.8% of margin. This pins the margin so a future edit cannot quietly eat it.
 static void t_headroom() {
-  printf("arithmetic — no channel may approach its type's ceiling\n");
+  printf("arithmetic, no channel may approach its type's ceiling\n");
   const uint64_t worst_ch16 = (uint64_t)255 * 255 * 256 / 255;   // col * l * g8 / 255
   const uint64_t worst_prod = (uint64_t)255 * 255 * 256;         // before the divide
   CHECK(worst_ch16 <= 65535, "ch16 must stay inside 16 bits so >>8 lands in a byte");
@@ -562,7 +562,7 @@ static void t_headroom() {
 
 // IDLE IS DARK, and dark means not driving the wire either.
 static void t_idle() {
-  printf("idle — dark, and silent on the wire\n");
+  printf("idle, dark, and silent on the wire\n");
   quiesce(16);
   Frame f = readout();
   bool lit = false; for (int k = 0; k < 9; k++) if (f[k]) lit = true;
@@ -585,7 +585,7 @@ static void t_idle() {
 // The priority order is the contract: an OTA must never be masked by a WiFi
 // animation, and a bus fault must never be masked by a button acknowledgement.
 static void t_priority() {
-  printf("priority — the highest number wins, always\n");
+  printf("priority, the highest number wins, always\n");
   quiesce(16);
   uint32_t t0 = (uint32_t)host_millis;
   led_hold(LED_MENU, true);                 // amber, b = 0
@@ -602,13 +602,13 @@ static void t_priority() {
 
 // Night: some states are suppressed outright, and everything else is capped.
 static void t_night() {
-  printf("night — a fault at 3 am must not light a bedroom\n");
+  printf("night, a fault at 3 am must not light a bedroom\n");
   Run r = run_state(LED_FAULT_I2C, 4000, 16, 400, true);
   int peak = 0;
   for (auto &f : r.f) for (int k = 0; k < 9; k++) peak = std::max(peak, f[k]);
   CHECK(peak == 0, "LED_FAULT_I2C is suppressed overnight");
 
-  // LED_IDENTIFY is NOT on the suppression list — you asked for it — but it is
+  // LED_IDENTIFY is NOT on the suppression list, you asked for it, but it is
   // still capped. By day it is a real light; overnight it must be a glow at
   // most. Both halves are asserted, because "dark at night" is only meaningful
   // next to "lit by day": a state that was accidentally dark all the time would
@@ -622,7 +622,7 @@ static void t_night() {
   peak = 0;
   for (auto &f : r.f) for (int k = 0; k < 9; k++) peak = std::max(peak, f[k]);
   // OBSERVED, not assumed: master is capped at 12 overnight and gamma 2.2 takes
-  // (12/255)^2.2 * 65535 to 79, which folds to a g8 of 0 — so the night cap
+  // (12/255)^2.2 * 65535 to 79, which folds to a g8 of 0, so the night cap
   // currently quantises every state to fully off, not to a dim glow. That is
   // the display layer's number (NIGHT_CAP in led_tick) and not this change's to
   // move; it is pinned here so that if anyone ever raises the cap, they find
@@ -633,7 +633,7 @@ static void t_night() {
 // The blank light_sample() takes. It must not leave the strip dark, and it must
 // not touch the wire at all when there was nothing lit to blank.
 static void t_light_blank() {
-  printf("light blank — the LED image is continuous across the ADC read\n");
+  printf("light blank, the LED image is continuous across the ADC read\n");
   quiesce(16);
   CHECK(led_is_dark(), "idle: the strip is dark before the sample");
   int before = neo_shows;
@@ -654,24 +654,24 @@ static void t_light_blank() {
   CHECK(dark, "and the ADC really does see an unlit strip");
   led_light_blank_end();
   CHECK(readout() == lit_frame,
-        "and the exact frame that was showing comes back — no black notch");
+        "and the exact frame that was showing comes back, no black notch");
   CHECK(!led_is_dark(), "the dark latch is cleared again afterwards");
   led_hold(LED_IDENTIFY, false);
 }
 
 // strip.begin() EXACTLY ONCE. On this chip the RMT binding never comes back.
 static void t_begin_once() {
-  printf("the strip — bound once and never touched again\n");
+  printf("the strip, bound once and never touched again\n");
   CHECK(neo_begin_calls == 1, "strip.begin() is called exactly once, in led_begin()");
   CHECK(neo_brightness == 255,
-        "setBrightness must be 255 — anything less throws away the bits the "
+        "setBrightness must be 255, anything less throws away the bits the "
         "16-bit master scalar and the dither depend on");
   CHECK(neo_pin == PIN_LED, "and it is bound to PIN_LED");
 }
 
 // A one-shot must finish, and finish DARK, inside its own budget plus the fade.
 static void t_oneshots_end() {
-  printf("one-shots — every one ends, and ends dark\n");
+  printf("one-shots, every one ends, and ends dark\n");
   for (int i = 0; i < N_STATES; i++) {
     const StateDesc &d = STATES[i];
     uint32_t os = led_oneshot_ms(d.s);
@@ -707,7 +707,7 @@ static void selftest() {
     CHECK(!blue_then_green(blue, grn), "planted: cyan followed by green is the "
                                        "pairing this file exists to forbid");
   }
-  // 4. the slew law, on a synthetic hard cut — the exact shape of the old
+  // 4. the slew law, on a synthetic hard cut, the exact shape of the old
   //    LED_CONFIRM square wave.
   {
     std::vector<Frame> f(4); std::vector<uint32_t> t = {0, 16, 32, 48};
@@ -775,7 +775,7 @@ int main() {
   printf("  states covered:         %d\n", N_STATES);
   printf("  checks run:             %d\n", n_checks);
   if (n_failures) {
-    printf("\nRESULT: FAIL — %d of %d checks failed\n\n", n_failures, n_checks);
+    printf("\nRESULT: FAIL, %d of %d checks failed\n\n", n_failures, n_checks);
     return 1;
   }
   printf("\nRESULT: PASS\n\n");

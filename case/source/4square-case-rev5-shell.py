@@ -424,7 +424,7 @@ with BuildPart() as shell:
 part = shell.part
 
 SHEET = {
-    "title": (f"4square case REV 5 — printed shell   "
+    "title": (f"4square case REV 5, printed shell   "
               f"{P.OUTER:.1f} x {P.OUTER:.1f} x {P.Z_TOP:.1f} mm   "
               f"the front face is the alignment jig"),
     # iso-top looks down +Z, which is INTO the case -- the open back. The
@@ -432,11 +432,11 @@ SHEET = {
     # round labelled the open back "FRONT" on the rev 2 sheet.
     "views": ["iso-bottom", "iso-top", "section:y"],
     "labels": ["1  FRONT  (cosmetic face, prints on the bed)",
-               "2  BACK  (four locating pockets, screw pilots — no rim: the retainer seats the board)",
+               "2  BACK  (four locating pockets, screw pilots, no rim: the retainer seats the board)",
                "3  SECTION  (through a pocket: 1.00 bezel, 5.20 of pocket wall)"],
     "subs": [f"four {P.GLASS_W:.2f} x {P.GLASS_H:.2f} windows, {P.BEZEL_T:.2f} mm "
              f"of bezel over the glass",
-             f"{P.POCKET_W:.2f} square x {P.POCKET_DEPTH:.2f} deep — a "
+             f"{P.POCKET_W:.2f} square x {P.POCKET_DEPTH:.2f} deep, a "
              f"{P.SCREEN_W:.2f} module can skew "
              f"{math.degrees(math.atan(2 * P.POCKET_FIT / P.SCREEN_W)):.2f}°",
              f"board seats on the RETAINER, {P.BOARD_GAP:.3f} mm above this face"],

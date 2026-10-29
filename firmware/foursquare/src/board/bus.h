@@ -1,4 +1,4 @@
-// bus.h — the shared I2C bus, the mux in front of the screens, and recovery.
+// bus.h, the shared I2C bus, the mux in front of the screens, and recovery.
 #pragma once
 #include <Arduino.h>
 #include "../config.h"
@@ -9,7 +9,7 @@ extern const uint8_t OLED_CH[N_SCREENS];
 extern const char *const OLED_NAME[N_SCREENS];
 
 // Light-sensor calibration, in raw ADC counts. MEASURED with the LEDs blanked
-// on 2026-08-07 — a normally lit room reads ~86. The 200-ish numbers an
+// on 2026-08-07, a normally lit room reads ~86. The 200-ish numbers an
 // earlier version used came from readings contaminated by our own LED and put
 // a lit room at a third of full brightness.
 static const uint16_t LIGHT_RAW_LO = 5;      // at or below: fully dimmed
@@ -25,7 +25,7 @@ void mux_off();
 
 // Returns true if the mux acknowledged and read back the channel we asked
 // for. A mux that answers but has not switched is a silent, extremely
-// confusing failure — all four screens show whatever the last channel had.
+// confusing failure, all four screens show whatever the last channel had.
 bool mux_verify(uint8_t ch);
 
 // I2C RECOVERY LADDER.
@@ -39,7 +39,7 @@ bool mux_verify(uint8_t ch);
 // The SHT31 is read in clock-stretch mode, so it holds SCL by design and is
 // the part most able to wedge the bus if a joint is marginal.
 //
-//   L0  retry once — most errors are a single NAK
+//   L0  retry once, most errors are a single NAK
 //   L1  nine SCL pulses + a STOP, bit-banged: frees a stuck slave
 //   L2  full Wire re-init
 //   L3  reset the mux by deselecting all channels

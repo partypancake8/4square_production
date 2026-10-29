@@ -25,12 +25,12 @@ static uint32_t next_anim = 0;
 // setting rather than as something alive.
 //
 // WHERE THE RANDOMNESS LIVES, AND WHY THE PROVER STILL WORKS. anim.cpp and
-// pages.cpp are pure and stay pure — they are handed four ids and four phases
+// pages.cpp are pure and stay pure, they are handed four ids and four phases
 // and they draw them. Only this scheduler is nondeterministic, and the prover
 // does NOT prove a schedule. It sweeps THE WHOLE SPACE the schedule can draw
 // from: every animation, on every panel, across a full cycle of frames. Any
 // selection this can ever make is four points already inside that set, so
-// proving the set proves every possible schedule at once — including ones a
+// proving the set proves every possible schedule at once, including ones a
 // sampled run would never have produced. Sampling one schedule would have been
 // strictly weaker AND would have needed the wall-clock nondeterminism a prover
 // in this family may not have.
@@ -46,7 +46,7 @@ static uint32_t anim_next_shuffle = 0;
 // ---- THE SHOWREEL IS THE FIRST STOP ---------------------------------------
 // Arriving on the animation page starts the segmented attract-mode loop
 // (pages.h) and it LOOPS until asked to stop: no shuffling underneath it, and
-// a repeat press of DOWN is the exit into the normal self-playing roster —
+// a repeat press of DOWN is the exit into the normal self-playing roster  - 
 // the same gesture still means "show me something else". Serial B3 arrives
 // through the same path, so one injected DOWN reaches the reel too.
 static bool showreel_on = false;
@@ -135,7 +135,7 @@ static uint32_t anim_rand(uint32_t now);
 // ---- the walker's pass variant --------------------------------------------
 // Two random bits per reel loop: which row he crosses and from which side
 // (anim.h). Runtime randomness lives HERE, in the scheduler, exactly like the
-// roster's anim_ids — the renderer is pure in the variant, and the prover
+// roster's anim_ids, the renderer is pure in the variant, and the prover
 // enumerates all four. A re-roll is forced to differ from the last pass so
 // two consecutive loops never look identical.
 static uint8_t sr_walk_variant = 0;
@@ -169,7 +169,7 @@ static void roster_start(uint32_t now) {
   anim_shuffle(now);
 }
 
-// A 32-bit xorshift — the firmware's existing convention for "varying, cheap
+// A 32-bit xorshift, the firmware's existing convention for "varying, cheap
 // and dependency-free".
 // Seeded once from the boot counter and the millis of the first shuffle, so
 // two boards do not march in step and one board does not replay the same reel
@@ -187,7 +187,7 @@ static void anim_shuffle(uint32_t now) {
   const uint8_t n = anim_total();
   if (!n) return;
   if ((anim_rand(now) % ANIM_SAME_IN) == 0) {
-    // ALL FOUR THE SAME — but NOT in lockstep. Each panel gets its own phase,
+    // ALL FOUR THE SAME, but NOT in lockstep. Each panel gets its own phase,
     // so the four read as four instruments playing one part rather than as a
     // single picture stretched across the glass. That is the whole reason for
     // doing this on a 2x2 at all.
@@ -218,14 +218,14 @@ static void anim_shuffle(uint32_t now) {
   anim_next_shuffle = now + ANIM_SHUFFLE_MS;
 }
 // WHEN INPUT LAST HAPPENED. Compare against it with a SIGNED difference,
-// always — `(int32_t)(now - last_input_ms) > TIMEOUT`, never the unsigned form.
+// always, `(int32_t)(now - last_input_ms) > TIMEOUT`, never the unsigned form.
 //
 // It can legitimately sit a millisecond or two AHEAD of the `now` a tick is
 // working from: loop() samples millis() once at the top and passes that value
 // down, but poll_serial() runs in between and a serial-injected press stamps
 // this with a fresh millis(). Unsigned, that one millisecond of skew makes
 // `now - last_input_ms` underflow to about 4.29 billion, which is greater than
-// every timeout here — so the animation page bounced back to the clock the
+// every timeout here, so the animation page bounced back to the clock the
 // instant it was opened, and the settings page could not be entered at all.
 // Intermittently, because whether the two millis() calls land in the same
 // millisecond is a race.
@@ -248,7 +248,7 @@ static bool    last_ok = false;
 // MODE and SET act on RELEASE, so a long press can mean something different
 // from a short one.
 //
-// UP and DOWN act on PRESS. They also auto-repeat — but the repeat is only
+// UP and DOWN act on PRESS. They also auto-repeat, but the repeat is only
 // ACTED ON by the settings page. Version A removed auto-repeat outright,
 // correctly, because there was no number left to run and leaning on a button
 // would otherwise cycle a page as fast as the repeat timer. The
@@ -356,8 +356,8 @@ uint8_t ui_set_cursor() { return set_cursor; }
 
 // A daily window, handling the wrap past midnight. 22:30 to 07:00 is the night
 // default and is exactly the case a naive start<=now<end comparison gets
-// wrong. ONE implementation, because there are now two windows — the night
-// dim and the screens-off schedule — and a second copy of this comparison is a
+// wrong. ONE implementation, because there are now two windows, the night
+// dim and the screens-off schedule, and a second copy of this comparison is a
 // second chance to get the midnight wrap wrong in only one of them.
 static bool in_window(const RtcTime &t, uint8_t sh, uint8_t sm,
                       uint8_t eh, uint8_t em) {
@@ -376,7 +376,7 @@ bool ui_is_night(const RtcTime &t) {
 
 bool ui_is_screens_off(const RtcTime &t) {
   // NO RTC, NO SCHEDULE. A clock that does not know the time must not decide
-  // the screens should be off — the failure would look exactly like a dead
+  // the screens should be off, the failure would look exactly like a dead
   // board, and the one thing the user needs to see in that state is the
   // display saying it does not know the time.
   if (!t.ok || !cfg.off_enable) return false;
@@ -387,8 +387,8 @@ bool ui_is_screens_off(const RtcTime &t) {
 // ============================================================ blank policy ==
 // TWO SCHEDULES, ONE OWNER. The night window (night_mode 2) and the daily
 // screens-off schedule can both want the glass dark. They used to each call
-// disp_all_off() from their own code — display.cpp for the first, and the
-// second would have added a rival — so whichever transitioned last won, and a
+// disp_all_off() from their own code, display.cpp for the first, and the
+// second would have added a rival, so whichever transitioned last won, and a
 // wake inside one window was silently undone by the other. Now display.cpp
 // keeps only the mechanism and the decision is made here, from both inputs,
 // once per tick.
@@ -402,7 +402,7 @@ static bool woken = false;
 static void wake_panels() {
   disp_all_off(false);
   woken = true;
-  // The glass currently holds the frame written BEFORE the blank — 23:30 at
+  // The glass currently holds the frame written BEFORE the blank, 23:30 at
   // 04:00. ui_paint's last_min bookkeeping thinks it painted every minute
   // since, so without this the wrong time stays up until the next boundary.
   ui_force_repaint();
@@ -441,7 +441,7 @@ static void select_page(uint8_t p, uint32_t now) {
   } else {
     page = p;
   }
-  // ARRIVING STARTS THE SHOWREEL IMMEDIATELY — it is the page's first stop,
+  // ARRIVING STARTS THE SHOWREEL IMMEDIATELY, it is the page's first stop,
   // playing before the user's finger is off the button.
   if (p == PG_ANIM && arriving) showreel_start(now);
   dirty_screen = true;
@@ -495,7 +495,7 @@ static void settings_adjust(int8_t dir) {
     case SI_SENS: {
       // ONE DIAL OVER TWO FIELDS. Position 0 is OFF, which is cfg.autodim = 0;
       // 1..4 are the DimSens values with autodim on. Presenting them as one
-      // ordinal is what makes the item readable — "sensitivity: off" is the
+      // ordinal is what makes the item readable, "sensitivity: off" is the
       // obvious way to say "do not dim", and a separate on/off row next to a
       // sensitivity row invites setting a sensitivity that does nothing.
       int8_t lv = (int8_t)(cfg.autodim ? cfg.dim_sens : 0) + dir;
@@ -610,7 +610,7 @@ bool ui_input(uint32_t now) {
     }
 
     // EV_LONG, MODE and SET only. MODE silences the LEDs. SET opens the
-    // settings page — it used to toggle C/F, which is now the second item in
+    // settings page, it used to toggle C/F, which is now the second item in
     // there, so nothing that was reachable before became less reachable.
     if (i == 0)      toggle_leds();
     else if (i == 1) enter_settings(now);
@@ -619,7 +619,7 @@ bool ui_input(uint32_t now) {
 }
 
 // The serial stand-in for a real press. Goes through the SAME functions a
-// button reaches — not a second implementation that could work while the real
+// button reaches, not a second implementation that could work while the real
 // one does not. With SW1-SW4 unfitted this is the only way to reach the
 // settings page at all, which is why the long press is injectable too.
 void ui_button(uint8_t i, bool long_press) {
@@ -682,7 +682,7 @@ void ui_tick(uint32_t now, const RtcTime &t) {
       // A NEW PASS VARIANT EVERY LOOP, rolled at the wrap so the walker's
       // row and direction are a surprise each time round.
       if (rt == 0) sr_walk_roll(now);
-      // The reel's ticks are not one duration — the walker and the skies run
+      // The reel's ticks are not one duration, the walker and the skies run
       // on the fast dirty-commit tick. pages.cpp states which; see
       // showreel_tick_ms.
       next_anim = now + showreel_tick_ms(rt);
@@ -693,7 +693,7 @@ void ui_tick(uint32_t now, const RtcTime &t) {
   }
 
   // THE ROSTER'S OWN CADENCE: ~10 s of shuffled streams, then the clock
-  // interlude played once, then back. SIGNED comparisons, always — the same
+  // interlude played once, then back. SIGNED comparisons, always, the same
   // millis() underflow that bit last_input_ms applies to every deadline here.
   if (page == PG_ANIM && !showreel_on &&
       (int32_t)(now - scene_until) >= 0) {
@@ -710,7 +710,7 @@ void ui_tick(uint32_t now, const RtcTime &t) {
     dirty_screen = true;
   }
 
-  // A NEW SELECTION EVERY FIVE SECONDS while the roster streams are up — but
+  // A NEW SELECTION EVERY FIVE SECONDS while the roster streams are up, but
   // never under the showreel or the clock interlude, which are scripted.
   if (page == PG_ANIM && !showreel_on && roster_scene == SCENE_ROSTER &&
       (int32_t)(now - anim_next_shuffle) >= 0) {
@@ -740,7 +740,7 @@ void ui_tick(uint32_t now, const RtcTime &t) {
 
   // The settings page is the one modal state on the device, so it gets the
   // short timeout the old menu had. Walking away mid-edit must not leave a
-  // clock showing "SLEEP AT" indefinitely — and it is the one page that never
+  // clock showing "SLEEP AT" indefinitely, and it is the one page that never
   // repaints on its own, so a stale one would also be four static images
   // sitting in the same pixels, which is the thing the whole display layer
   // exists to prevent.
@@ -826,7 +826,7 @@ void ui_paint(uint32_t now, const RtcTime &t, bool force) {
       // only the panel that actually carries a second.
       //
       // `!t.ok` must NOT force a repaint every pass. With the RTC dead the
-      // content is a constant "--", so it needs painting once — driving four
+      // content is a constant "--", so it needs painting once, driving four
       // 1 KB frames every 50 ms instead asks for more than 100% of the bus.
       if (state_changed || min_changed) mask = 0x0F;
       else if (sec_changed)             mask = CLOCK_SEC_MASK;

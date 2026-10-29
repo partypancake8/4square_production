@@ -7,7 +7,7 @@ PAGE, because a page is four panels seen at once and the question is whether
 they read as one thing.
 
 So: pick the frames matching a filter, group them by their `slotN` field, and
-lay each group out the way the panels physically sit —
+lay each group out the way the panels physically sit  - 
 
     slot0 top-left      slot1 top-right
     slot2 bottom-left   slot3 bottom-right

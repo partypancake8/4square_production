@@ -1,7 +1,7 @@
-// config.h — every pin, address and tunable in one place.
+// config.h, every pin, address and tunable in one place.
 //
 // Nothing here is guessed. Pins and mux channels come from the NETLIST
-// (board.py), never from silk and never from memory — the rev O silk lied
+// (board.py), never from silk and never from memory, the rev O silk lied
 // twice and cost three parts, see hardware/HARDWARE.md.
 #pragma once
 #include <stdint.h>
@@ -22,15 +22,15 @@
 // ---- I2C addresses --------------------------------------------------------
 #define ADDR_MUX    0x70   // U1 PCA9548A, A0-A2 grounded
 #define ADDR_OLED   0x3C   // all four modules, one per mux channel
-#define ADDR_RTC    0x68   // U4 DS3231     — MAIN bus, not muxed
-#define ADDR_SHT    0x44   // U5 SHT31      — MAIN bus, not muxed
-#define ADDR_EEPROM 0x50   // U3 24LC256    — MAIN bus, not muxed. A0-A2 and
+#define ADDR_RTC    0x68   // U4 DS3231    , MAIN bus, not muxed
+#define ADDR_SHT    0x44   // U5 SHT31     , MAIN bus, not muxed
+#define ADDR_EEPROM 0x50   // U3 24LC256   , MAIN bus, not muxed. A0-A2 and
                            // WP all grounded, so writes are enabled.
 
 // ---- the four screens -----------------------------------------------------
 //     J1 top-left  HOURS  ch2  |  J2 top-right    MINUTES ch6
 //     J3 bottom-left DAY   ch1  |  J4 bottom-right DATE    ch7
-// from board.py's OLED_CHANNELS. Panels are ALL WHITE — no yellow top band, so
+// from board.py's OLED_CHANNELS. Panels are ALL WHITE, no yellow top band, so
 // all 64 rows are usable and nothing has to dodge a seam.
 #define N_SCREENS 4
 #define SCR_W 128
@@ -57,7 +57,7 @@ static const uint32_t BTN_REPEAT_FIRST = 450;    //   this initial delay
 static const uint32_t SHT_PERIOD_MS    = 1000;
 static const uint32_t RTC_PERIOD_MS    = 1000;
 // 1000, not 200. The blank below grew from 4 ms to 25 ms when it turned out
-// 4 ms was not long enough for the phototransistor to decay — but the period
+// 4 ms was not long enough for the phototransistor to decay, but the period
 // did not grow with it. 25 ms in every 200 is a 12.5% blackout at 5 Hz, which
 // is squarely in the most perceptible flicker band, on indicators designed to
 // be read across a dark bedroom. At 1 Hz it is 2.5% and invisible, and "the
@@ -71,7 +71,7 @@ static const uint32_t UI_TICK_MS       = 50;
 // matter: led_tick() runs at most once per loop() pass and loop() serialises
 // with ui_paint(), which on the animation page blocks ~92 ms pushing four 1 KB
 // frames at 400 kHz. The real LED rate there is nearer 10 Hz. Every gait in
-// leds.cpp is therefore a function of wall time and does not care — but the
+// leds.cpp is therefore a function of wall time and does not care, but the
 // temporal dither is a 60 fps mechanism and at 10 Hz it turns a constant colour
 // into a 10 Hz square wave on the bottom bit. Above this MEASURED interval it
 // degrades to plain rounding instead. Two design frames.
@@ -83,14 +83,14 @@ static const uint32_t LED_DITHER_MAX_DT_MS = 33;
 static const uint32_t LED_BLANK_RAMP_MS    = 24;
 
 // 25 ms, not 4. MEASURED 2026-08-07: the same room reads raw 78-92 with the
-// LEDs dark and 172-192 with a red LED lit — our own LED roughly DOUBLES the
+// LEDs dark and 172-192 with a red LED lit, our own LED roughly DOUBLES the
 // reading through a 4 ms blank. R7 sits 9.5 mm from D2 on the same board face
 // and a phototransistor needs longer than 4 ms to decay. Every auto-dim
 // calibration made against the contaminated numbers was wrong.
 static const uint32_t LIGHT_BLANK_MS   = 25;
 
 // HOW OFTEN THE BLANK IS ALLOWED TO COST ANYTHING. When the strip is dark there
-// is nothing to blank and light_sample() samples freely at LIGHT_PERIOD_MS —
+// is nothing to blank and light_sample() samples freely at LIGHT_PERIOD_MS  - 
 // which, since IDLE IS DARK, is nearly always. When it is LIT the sample costs
 // a ramp down, the settle and a ramp up, and doing that once a second is a
 // visible dip in an animation somebody is looking at. Room light is not a 1 Hz

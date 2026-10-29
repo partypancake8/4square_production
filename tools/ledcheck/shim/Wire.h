@@ -1,7 +1,7 @@
 // A host-side model of the 24LC256 on the wire, not of store.cpp.
 //
 // THIS IS THE ONE PLACE THE PROVER IS ALLOWED TO REIMPLEMENT ANYTHING, and
-// what it reimplements is the CHIP — the part we do not have on the PC — never
+// what it reimplements is the CHIP, the part we do not have on the PC, never
 // the firmware. store.cpp is compiled from the tree and run against this
 // exactly as it runs against U3. If a test passes here and fails on hardware,
 // the bug is in this file's understanding of the datasheet, and that is a much
@@ -18,7 +18,7 @@
 //     preceded by a latched address reads from wherever the pointer was left;
 //   - the part NAKs while its ~5 ms write cycle is in progress, which is what
 //     ee_wait_ready()'s ACK polling is for.
-// It does NOT model bus arbitration, clock stretching or the mux — none of
+// It does NOT model bus arbitration, clock stretching or the mux, none of
 // which store.cpp can see.
 #pragma once
 #include <stdint.h>
@@ -38,7 +38,7 @@ inline uint32_t eesim_page_writes[EESIM_PAGES];
 // is the "EEPROM not found" path settings_load() has to survive.
 inline bool     eesim_present = true;
 // Fail the next N read transactions, then behave. Reproduces a marginal bus
-// rather than an absent chip — a different code path in settings_load(), and
+// rather than an absent chip, a different code path in settings_load(), and
 // the one whose failure mode is "my settings keep reverting".
 inline uint16_t eesim_read_faults = 0;
 // Refuse writes, as a write-protected or worn-out part would.
@@ -83,7 +83,7 @@ public:
   }
 
   // 0 = the part acknowledged. 2 = address NAK, which is both "no chip" and
-  // "chip busy finishing a write" — the caller cannot tell them apart on real
+  // "chip busy finishing a write", the caller cannot tell them apart on real
   // hardware either, which is exactly why ee_wait_ready() polls rather than
   // waits a fixed time.
   uint8_t endTransmission(bool = true) {
@@ -119,7 +119,7 @@ public:
     for (uint8_t i = 0; i < n && i < sizeof(rxbuf); i++) {
       rxbuf[rxn++] = eesim[ptr];
       // The pointer rolls over the WHOLE part on a sequential read, not the
-      // page — reads have no page boundary, only writes do.
+      // page, reads have no page boundary, only writes do.
       ptr = (uint16_t)((ptr + 1) % EESIM_SIZE);
     }
     return (uint8_t)rxn;

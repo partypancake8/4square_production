@@ -1,4 +1,4 @@
-// A host model of the WS2812 strip — the part the PC does not have.
+// A host model of the WS2812 strip, the part the PC does not have.
 //
 // Same rule the store prover works under (its shim/Wire.h models the 24LC256
 // and nothing else): the value of this gate is that it runs the exact leds.cpp
@@ -8,7 +8,7 @@
 //
 // The counters exist because of a real, expensive rule: strip.begin() must be
 // called EXACTLY ONCE, in led_begin(). On the C3 the RMT binding never comes
-// back if anything re-inits or borrows GPIO7 — the LEDs go permanently dead
+// back if anything re-inits or borrows GPIO7, the LEDs go permanently dead
 // while every call still reports success. That cost a full day. It is now
 // a mechanical assertion instead of a comment.
 #pragma once

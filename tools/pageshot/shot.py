@@ -2,7 +2,7 @@
 """Compose pageshot's four slot frames into the 2x2 the device actually shows.
 
 Lit pixels are drawn white, as on the glass. Every panel is captioned with its
-measured fill, and anything over the 15% always-on budget is called out — the
+measured fill, and anything over the 15% always-on budget is called out, the
 point of the picture is to see WHERE the ink is, not just that there is a lot
 of it.
 """
@@ -65,8 +65,8 @@ def main():
                     outline=(220, 90, 70) if over else (70, 130, 90), width=2)
         d.text((ox, oy + th + 7), lab.split("  ")[0],
                font=font(14, True), fill=(225, 225, 232))
-        note = ("%.1f%% lit — OVER the %g%% budget" % (pct, BUDGET)) if over \
-               else ("%.1f%% lit — within budget" % pct)
+        note = ("%.1f%% lit, OVER the %g%% budget" % (pct, BUDGET)) if over \
+               else ("%.1f%% lit, within budget" % pct)
         d.text((ox, oy + th + 24), note, font=font(12),
                fill=(235, 120, 100) if over else (130, 200, 150))
 

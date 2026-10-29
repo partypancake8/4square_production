@@ -505,11 +505,11 @@ for _name, (_lo, _hi) in HALVES.items():
     WORST_SPAN = SPANS[0] if SPANS else 0.0
 
     SHEET = {
-        "title": (f"4square case REV 5 — RETAINER, half {_name.upper()}   "
+        "title": (f"4square case REV 5, RETAINER, half {_name.upper()}   "
                   f"{P.BOARD:.0f} x {_hi - _lo:.0f} x {P.RET_T:.2f} mm   "
                   f"holds the screens flat; the board seats on it"),
         "views": ["iso-top", "iso-bottom", "section:y"],
-        "labels": [f"1  BOARD SIDE  (flat — prints on the bed, seats the PCB)",
+        "labels": [f"1  BOARD SIDE  (flat, prints on the bed, seats the PCB)",
                    f"2  SCREEN SIDE  ({len(PADS)} pads, {P.RET_PAD:.2f} sq "
                    f"x {P.RET_PAD_H:.2f} proud)",
                    f"3  SECTION  (through a pad and its pin notch)"],

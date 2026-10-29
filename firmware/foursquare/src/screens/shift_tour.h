@@ -14,14 +14,14 @@
 // pixel offsets, traversed forward and then backward. Three properties matter
 // and all are checked in tools/layoutcheck/layoutcheck.cpp:
 //
-//   UNIFORM  — every offset is visited exactly twice per cycle, so residency is
+//   UNIFORM , every offset is visited exactly twice per cycle, so residency is
 //              exactly uniform rather than uniform in expectation. This is what
 //              lets the prover model a pixel's duty as a plain uniform box sum.
-//   ADJACENT — consecutive offsets differ by at most 1 px on one axis, so the
+//   ADJACENT, consecutive offsets differ by at most 1 px on one axis, so the
 //              image never visibly jumps. The forward/backward traversal exists
 //              precisely to avoid the jump home: an odd x odd grid admits a
 //              Hamiltonian PATH but no Hamiltonian CYCLE, by a parity argument.
-//   CENTRED  — the mean offset over a cycle is exactly (0,0), so the wander
+//   CENTRED , the mean offset over a cycle is exactly (0,0), so the wander
 //              moves the image without moving where its centre sits. Without
 //              that, "this layout is centred" would not mean anything.
 //

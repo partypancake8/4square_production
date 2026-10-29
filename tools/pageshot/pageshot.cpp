@@ -1,4 +1,4 @@
-// PAGESHOT — render ONE page variant across all four slots, as the device
+// PAGESHOT, render ONE page variant across all four slots, as the device
 // draws it, so a human can look at it.
 //
 // The prover answers "is this legal". It cannot answer "why is CLOCK v5 over

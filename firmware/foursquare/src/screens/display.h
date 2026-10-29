@@ -1,4 +1,4 @@
-// display.h — the ONLY way anything reaches a panel.
+// display.h, the ONLY way anything reaches a panel.
 //
 // ===========================================================================
 // THIS FILE IS THE ANTI-BURN-IN ENFORCEMENT POINT.
@@ -9,13 +9,13 @@
 //   * The four Adafruit_SSD1306 objects have INTERNAL LINKAGE in display.cpp.
 //     Nothing outside that translation unit can name them, so nothing outside
 //     it can write to a panel.
-//   * Drawing code is handed a GFXcanvas1 — plain RAM. It cannot reach I2C.
+//   * Drawing code is handed a GFXcanvas1, plain RAM. It cannot reach I2C.
 //   * The shift, the brightness cap and the night policy are applied during
 //     the blit from canvas to panel, after all drawing is finished.
 //
 // So a new clock face cannot forget to be burn-in safe, and cannot opt out.
 // The one thing a layout CAN get wrong is drawing outside the safe area, and
-// that is what tools/layoutcheck proves it does not — on the host, from the
+// that is what tools/layoutcheck proves it does not, on the host, from the
 // same source, before it ever runs.
 #pragma once
 #include <Arduino.h>
@@ -77,7 +77,7 @@ uint8_t disp_present_mask();
 // could never reach the recovery ladder. panel_ok[] was a boot-time snapshot
 // being read as if it were live health.
 // It also revalidates the mux, whose selected-channel cache is otherwise
-// trusted forever — a PCA9548A that loses its register to a glitch would
+// trusted forever, a PCA9548A that loses its register to a glitch would
 // freeze all four screens on the last good frame with nothing noticing.
 // Returns true if anything changed and the screens need a repaint.
 bool  disp_health_check();
@@ -87,7 +87,7 @@ GFXcanvas1 &disp_canvas(uint8_t i);
 
 // Push the given screens. Applies shift, rotation and the brightness policy.
 // DIRTY COMMITS: a panel whose post-transform bytes are unchanged since the
-// last push is skipped — a memcmp against a shadow copy costs microseconds
+// last push is skipped, a memcmp against a shadow copy costs microseconds
 // against ~11-23 ms of bus per panel. The compare sits AFTER the shift/bias
 // application, so a burn-in shift step dirties everything and full-pushes
 // automatically.
@@ -120,12 +120,12 @@ void  disp_burnin_tick(uint32_t now_s);
 int8_t disp_shift_x();
 int8_t disp_shift_y();
 
-// MECHANISM ONLY. Whether the glass SHOULD be dark is not decided here — the
+// MECHANISM ONLY. Whether the glass SHOULD be dark is not decided here, the
 // night window and the daily screens-off schedule can both want it, and one
 // owner for that is ui.cpp's blank policy. This layer just does it.
 void  disp_all_off(bool off);
 // Is the panel actually dark right now? The UI needs the REAL state, not the
-// night_mode setting — gating a button on the setting instead of the state is
+// night_mode setting, gating a button on the setting instead of the state is
 // what made "night mode = blank" swallow every press at noon.
 bool  disp_is_blanked();
 void  disp_rescan();

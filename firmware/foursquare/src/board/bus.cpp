@@ -20,11 +20,11 @@ void bus_begin() {
   Wire.begin(PIN_SDA, PIN_SCL);
   Wire.setClock(400000);          // safe: R1/R2 bus pull-ups fitted 2026-08-03
   // THE FREEZE FIX. Without a timeout an I2C transaction waits forever for a
-  // device that never releases the bus and the whole sketch stops dead —
+  // device that never releases the bus and the whole sketch stops dead  - 
   // which is exactly what "it froze" looks like from the outside.
   //
   // 25 ms, not 50. This is per-transaction, and disp_rescan() issues ~165 of
-  // them — at 50 ms a fully wedged bus takes 8 s, which is a guaranteed panic
+  // them, at 50 ms a fully wedged bus takes 8 s, which is a guaranteed panic
   // against the 5 s task watchdog. 25 ms is still 40x any legitimate
   // transaction at 400 kHz, including the SHT31's clock stretching.
   //
@@ -73,7 +73,7 @@ static void unstick() {
   Wire.end();
   // OPEN DRAIN, NOT PUSH-PULL. A plain OUTPUT on the C3 is push-pull, so
   // driving SCL HIGH would fight the open-drain FET of the very slave that is
-  // holding the line down — which is the only condition this function exists
+  // holding the line down, which is the only condition this function exists
   // to handle. The fitted R1/R2 pull-ups supply the highs; contention becomes
   // impossible.
   pinMode(PIN_SDA, OUTPUT_OPEN_DRAIN);
@@ -89,8 +89,8 @@ static void unstick() {
   }
 
   // A REAL STOP: SDA must go low while SCL is LOW, then SCL high, then SDA
-  // high. Pulling SDA low while SCL was already high — which is what the
-  // previous version did after the loop broke — is a START condition, not a
+  // high. Pulling SDA low while SCL was already high, which is what the
+  // previous version did after the loop broke, is a START condition, not a
   // STOP.
   digitalWrite(PIN_SCL, LOW);  delayMicroseconds(5);
   digitalWrite(PIN_SDA, LOW);  delayMicroseconds(5);
@@ -115,7 +115,7 @@ bool bus_recover() {
   if (ok) for (uint8_t i = 0; i < DEV_COUNT; i++) errs[i] = 0;
   // NOTE: the four SSD1306 controllers may be sitting mid-command with a
   // half-consumed GDDRAM pointer after being clocked past. The caller must
-  // re-initialise them — see the disp_health_check() call in loop(), which
+  // re-initialise them, see the disp_health_check() call in loop(), which
   // notices they stopped answering and does exactly that.
   return ok;
 }

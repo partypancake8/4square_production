@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# literals.sh — emit every credential literal in secrets.h as NAME<TAB>VALUE.
+# literals.sh, emit every credential literal in secrets.h as NAME<TAB>VALUE.
 #
 # The one job: hand a credential sweep the exact strings that
 # must not appear in a built image. It is the only thing in the tree that reads

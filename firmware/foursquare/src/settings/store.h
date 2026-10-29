@@ -1,9 +1,9 @@
-// store.h — the 24LC256 EEPROM (U3) and the settings that live in it.
+// store.h, the 24LC256 EEPROM (U3) and the settings that live in it.
 //
 // WHY AN EEPROM AND NOT NVS. U3 is a real DIP-8 24LC256 in a socket on the
 // main I2C bus; it is on the board precisely so settings survive. Using it
-// instead of the ESP32's NVS also means a firmware flash — including a
-// partition-table change, which erases NVS — never loses the user's setup.
+// instead of the ESP32's NVS also means a firmware flash, including a
+// partition-table change, which erases NVS, never loses the user's setup.
 #pragma once
 #include <Arduino.h>
 #include "../config.h"
@@ -29,14 +29,14 @@ enum Widget : uint8_t {
 // its lit area by ~75%, which is the single biggest burn-in win available on
 // a device that shows the same digit in the same place for years.
 // Version A: BARS and DOTS are gone. They were built, looked at on the real
-// glass and rejected — a 12-bar gauge and a binary dot row are both puzzles
+// glass and rejected, a 12-bar gauge and a binary dot row are both puzzles
 // rather than clocks. SHADOW and STENCIL replace them: still hollow, still
 // inside the burn-in budget, but legible at a glance from across a room.
 //
 // ⛔ THIS ENUM IS STORED IN EEPROM (Settings::slot_style). ⛔
 // The numeric values are FROZEN. S_SEG, S_WORDS, S_SHADOW and S_STENCIL were
 // dropped from the MODE cycle (pages.cpp, CLOCK_STYLES[]) on the user's ruling
-// — "none of these shadow bullshit segments" — but they are NOT dropped from
+//, "none of these shadow bullshit segments", but they are NOT dropped from
 // here and their renderers still compile. Renumbering to close the gap would
 // silently relabel every saved record, which is the exact class of bug the
 // single-source rule exists to prevent. New styles are APPENDED, never
@@ -62,7 +62,7 @@ static const uint8_t S_THEME_FIRST = S_DIAL;
 static const uint8_t S_THEME_N     = (uint8_t)(S_CAPSULE - S_DIAL + 1);
 
 // A small second value tucked into a corner of the same screen. This is the
-// only place two things share a panel, so it is the only real overlap risk —
+// only place two things share a panel, so it is the only real overlap risk  - 
 // and it is exactly what the host-side prover in tools/layoutcheck exists to
 // rule out, for every widget/style/overlay combination.
 enum Overlay : uint8_t {
@@ -75,7 +75,7 @@ static const uint8_t CFG_VERSION = 2;
 // WIDTH of the light window the dimming curve spans, around its midpoint:
 // a narrow window means a small change in the room swings the panel across its
 // whole range, a wide one means it barely moves. Sensitivity is therefore a
-// property of the CURVE, not of the caps — bright_day and bright_night still
+// property of the CURVE, not of the caps, bright_day and bright_night still
 // bound the result at both ends whatever this is set to.
 //
 // OFF is not a value of this field; it is autodim == 0. Keeping them separate
