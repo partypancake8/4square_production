@@ -1,0 +1,12 @@
+Quantity,Manufacturer Part Number,LCSC Part Number,Description,Designator
+5,3034,C5199422,CR2032 coin cell holder Keystone 3034 THT,BT1
+5,,C5187470,USB-C receptacle 6P through-hole power only,J9
+10,1N5819,C110032,Schottky diode 40V 1A DO-41 through-hole,D1
+10,MFR-25FTE52-4K7,C173023,4.7k 1/4W axial metal film resistor THT,R1 R2
+10,MFR-25FTE52-10K,,10k 1/4W axial metal film resistor THT,R3
+10,MFR-25FTE52-1K,,1k 1/4W axial metal film resistor THT,R4
+10,MFR-25FTE52-5K1,,5.1k 1/4W axial metal film resistor THT,R5 R6
+25,TC-6610,C7528713,Tactile push switch 6x6mm through-hole,SW1 SW2 SW3 SW4
+5,AT24LC256N,C19193485,24LC256 I2C EEPROM 256Kbit DIP-8,U3
+5,,C2874007,DIP-8 IC socket 2.54mm,U3 socket
+10,2.54-1*40P,C9811,Female Header 40 Position 2.54mm Pitch Single Row straight socket strip,J1 J2 J3 J4 J5 J6 J8
