@@ -3,7 +3,8 @@
 // THE GRAMMAR, in one sentence:
 //   each button owns a page, and pressing it again cycles a variant of it.
 //
-//   MODE  clock     SET  sensors     UP  markets     DOWN  animations
+//   MODE  clock     SET  sensors     UP  stopwatch   DOWN  animations
+//   (on the stopwatch, DOWN pauses a running one and clears a paused one)
 //
 // There is no menu, no modal editor and nothing to get stuck in: every button
 // is always a direct jump to a page you can see the name of. Settings that
@@ -62,3 +63,5 @@ uint8_t ui_page();          // which page is showing, for the serial report
 uint8_t ui_variant();
 uint8_t ui_set_cursor();    // which settings item is selected, for the report
 void    ui_force_repaint();
+// Serial `W`: "# SW state=<zero|run|pause> ms=<elapsed> page=<PG_ index>"
+void    ui_stopwatch_report();

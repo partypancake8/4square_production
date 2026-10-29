@@ -1414,7 +1414,7 @@ static PageData base_page() {
   d.sens.wifi_up = true;
   d.sens.rssi = -52;
   snprintf(d.sens.ssid, sizeof d.sens.ssid, "%s", "somewifi");
-  snprintf(d.sens.ip, sizeof d.sens.ip, "%s", "192.168.1.52");
+  snprintf(d.sens.ip, sizeof d.sens.ip, "%s", "192.168.86.52");
   d.sens.uptime_s = 3 * 86400 + 4 * 3600;
   d.sens.contrast = 140;
   d.sens.light_pct = 42;
@@ -1461,35 +1461,57 @@ static void check_pages() {
     }
   }
 
-  // ---- markets ----
-  // Price is a preformatted string, so what matters is how long it can get and
-  // how wide the change field goes. Both extremes are enumerated rather than
-  // assumed.
-  static const char *PRICES[] = {"0.01", "9.99", "313.33", "7757.6", "65043",
-                                 "123456", "1234567"};
-  static const char *SYMS[]   = {"SPX", "NVDA", "AAPL", "BTC", "TSLA", "MSFT",
-                                 "AMZN", "ABCDEFG"};
-  for (uint8_t var = 0; var < page_variants(PG_MARKET); var++) {
-    for (uint8_t slot = 0; slot < 4; slot++) {
-      bool dumped = false;
-      for (int i = 0; i < 56; i++) {
-        PageData d = base_page();
-        for (int k = 0; k < 4; k++) {
-          d.q[k].valid = (i % 9) != 0;
-          snprintf(d.q[k].sym, sizeof d.q[k].sym, "%s", SYMS[(i + k) % 8]);
-          snprintf(d.q[k].price, sizeof d.q[k].price, "%s", PRICES[(i + k) % 7]);
-          // Including the saturation values, which print the widest.
-          static const int16_t BP[] = {0, 5, -5, 999, -999, 32000, -32000, 1234};
-          d.q[k].chg_bp = BP[(i + k) % 8];
+  // ---- stopwatch ----
+  // UP's page since 2026-10-15 (it replaced the stock ticker). The renderer is
+  // pure in (state, ms), so the sweep drives every minute and second value
+  // through both digit panels, the three state words through BL, and the hour
+  // count across every width it can take through BR: 0, one digit, two,
+  // three, and uint32 ms's ceiling of 1193 h. Named cases on top: 00:00 zero,
+  // 59:59 (the last value before the hour carries), and the wide pairs 08:08
+  // and 48:48.
+  {
+    static const uint32_t HOURS[] = {0, 1, 9, 10, 99, 100, 999, 1193};
+    static const char *const ST[3] = {"zero", "run", "pause"};
+    long n_sw = 0;
+    for (uint8_t st = 0; st < 3; st++) {
+      for (uint8_t slot = 0; slot < 4; slot++) {
+        for (int v = 0; v < 60; v++) {
+          for (int hi = 0; hi < 8; hi++) {
+            PageData d = base_page();
+            d.sw.state = st;
+            uint64_t ms = ((uint64_t)HOURS[hi] * 3600u + (uint64_t)v * 60u +
+                           (uint64_t)((v * 7) % 60)) * 1000u + (uint64_t)(v * 13);
+            if (st == STW_ZERO) ms = 0;
+            if (ms > 0xFFFFFFFFull) ms = 0xFFFFFFFFull;
+            d.sw.ms = (uint32_t)ms;
+            char lab[192];
+            snprintf(lab, sizeof lab, "page STOPWATCH %s slot%u ms=%lu",
+                     ST[st], slot, (unsigned long)d.sw.ms);
+            run_page(PG_STOPWATCH, slot, 0, d, lab, v == 38 && hi == 1);
+            n_sw++;
+            if (st == STW_ZERO) break;      // zero is one value; no hour axis
+          }
+          if (st == STW_ZERO) break;
         }
-        char lab[192];
-        snprintf(lab, sizeof lab, "page MARKETS v%u slot%u  i=%d %s",
-                 var, slot, i, d.q[slot].valid ? "valid" : "waiting");
-        bool dump = !dumped && i == 1;
-        if (dump) dumped = true;
-        run_page(PG_MARKET, slot, var, d, lab, dump);
       }
     }
+    static const uint32_t NAMED[] = {0u, 3599000u, 3599999u, 8u * 60000u + 8000u,
+                                     48u * 60000u + 48000u, 3600000u,
+                                     0xFFFFFFFFu};
+    for (uint8_t st = 0; st < 3; st++)
+      for (uint8_t slot = 0; slot < 4; slot++)
+        for (uint32_t ms : NAMED) {
+          PageData d = base_page();
+          d.sw.state = st;
+          d.sw.ms = st == STW_ZERO ? 0 : ms;
+          char lab[192];
+          snprintf(lab, sizeof lab, "page STOPWATCH %s slot%u ms=%lu named",
+                   ST[st], slot, (unsigned long)d.sw.ms);
+          run_page(PG_STOPWATCH, slot, 0, d, lab, ms == 3599999u);
+          n_sw++;
+        }
+    printf("  stopwatch       : %ld screens (zero / run / pause, MM:SS full "
+           "range, hours 0..1193)\n", n_sw);
   }
 
   // ---- animations ----

@@ -2,7 +2,7 @@
 //
 // Nothing here is guessed. Pins and mux channels come from the NETLIST
 // (board.py), never from silk and never from memory — the rev O silk lied
-// twice and cost three parts, see ../../CLAUDE.md rule 1.
+// twice and cost three parts, see hardware/HARDWARE.md.
 #pragma once
 #include <stdint.h>
 

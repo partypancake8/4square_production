@@ -100,7 +100,7 @@ static bool     blanked      = false;
 // are the PRECHARGE period (0xD9) and the VCOMH deselect level (0xDB).
 // Driven together the panel goes from clearly bright to a faint glow; driven
 // apart, 255 and 1 look nearly the same — which is exactly the "dimming isn't
-// working" symptom this cost a session to find.
+// working" symptom this cost a day to find.
 //
 // Contrast is also the LIFETIME knob, not a comfort setting: it is a linear
 // segment-current control (ISEG = C/256 x IREF x 8) and OLED half-life goes

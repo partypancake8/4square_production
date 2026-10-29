@@ -2,7 +2,7 @@
 #include "../screens/display.h"
 #include "../settings/store.h"
 #include "leds.h"
-#include "../net/market.h"
+#include "../demo.h"
 #include "../screens/anim.h"
 #include <string.h>
 #include <stdio.h>
@@ -51,6 +51,84 @@ static uint32_t anim_next_shuffle = 0;
 // through the same path, so one injected DOWN reaches the reel too.
 static bool showreel_on = false;
 
+// ---- THE STOPWATCH (UP) ----------------------------------------------------
+// Replaced the stock ticker on 2026-10-15. Three states, pure millis():
+//   ZERO   acc = 0, not running
+//   RUN    elapsed = acc + (now - t0)   -- unsigned subtraction, so a millis()
+//                                         wrap mid-run costs nothing
+//   PAUSE  elapsed = acc, frozen
+// No lapping. It keeps counting on any other page; UP brings it back.
+static uint8_t  stw_state = STW_ZERO;
+static uint32_t stw_acc = 0, stw_t0 = 0;
+
+static uint32_t stw_elapsed(uint32_t now) {
+  return stw_state == STW_RUN ? stw_acc + (uint32_t)(now - stw_t0) : stw_acc;
+}
+static void stw_run(uint32_t now) {            // ZERO or PAUSE -> RUN
+  if (stw_state == STW_RUN) return;
+  stw_t0 = now;
+  stw_state = STW_RUN;
+}
+static void stw_down(uint32_t now) {           // RUN -> PAUSE -> ZERO
+  if (stw_state == STW_RUN) {
+    stw_acc = stw_elapsed(now);
+    stw_state = STW_PAUSE;
+  } else if (stw_state == STW_PAUSE) {
+    stw_acc = 0;
+    stw_state = STW_ZERO;
+  }
+}
+
+// ---- the showreel's STOCKS segment, without a ticker ------------------------
+// The reel (DOWN) still plays its 7 s markets segment through the pure
+// render_market() renderer. Nothing fetches quotes any more, so the four rows
+// come from here: in a DEMO build the same baked basket market.cpp used to
+// serve, on the same bounded 3 s walk; in a shipping build the symbols with no
+// price, which is exactly what that page showed on this board (it never held a
+// WiFi association long enough to fetch one).
+struct ReelQuote { const char *sym; int32_t base_cents; int16_t chg_bp;
+                   uint16_t seed; int32_t step_cents; };
+static const ReelQuote REEL_Q[4] = {
+  {"SPX",  660412,   84, 0x2F1D,   45},
+  {"NVDA",  18327,  213, 0x7A03,    9},
+  {"AAPL",  23196,  -47, 0x51C7,   11},
+  {"BTC", 11284300,  126, 0x1E95, 3500},
+};
+static void reel_quotes(Quote out[4], uint32_t now) {
+#ifdef DEMO_BUILD
+  const uint32_t step = now / 3000u;
+  for (uint8_t k = 0; k < 4; k++) {
+    const ReelQuote &r = REEL_Q[k];
+    uint16_t x = (uint16_t)(r.seed ^ (step * 40503u));
+    if (!x) x = 0xACE1;
+    x ^= (uint16_t)(x << 7); x ^= (uint16_t)(x >> 9); x ^= (uint16_t)(x << 8);
+    const int32_t off = (int32_t)(x % (uint16_t)(2 * r.step_cents + 1)) - r.step_cents;
+    const int32_t px  = r.base_cents + off;
+    int32_t bp = r.chg_bp + (int32_t)((int64_t)off * 10000 / r.base_cents);
+    if (bp > 32000) bp = 32000;
+    if (bp < -32000) bp = -32000;
+    // Always positive (every base is far above its step), so unsigned keeps
+    // the formatter's worst case inside the 12-byte field.
+    const uint32_t upx   = (uint32_t)(px < 0 ? 0 : px);
+    const uint32_t whole = upx / 100u;    // BTC is six figures
+    const uint8_t  frac  = (uint8_t)(upx % 100u);
+    Quote &q = out[k];
+    snprintf(q.sym, sizeof q.sym, "%s", r.sym);
+    if (whole >= 10000)     snprintf(q.price, sizeof q.price, "%lu", (unsigned long)whole);
+    else if (whole >= 1000) snprintf(q.price, sizeof q.price, "%lu.%01u", (unsigned long)whole, (unsigned)(frac / 10u));
+    else                    snprintf(q.price, sizeof q.price, "%lu.%02u", (unsigned long)whole, (unsigned)frac);
+    q.chg_bp = (int16_t)bp;
+    q.valid  = true;
+  }
+#else
+  (void)now;
+  for (uint8_t k = 0; k < 4; k++) {
+    out[k] = Quote{};
+    snprintf(out[k].sym, sizeof out[k].sym, "%s", REEL_Q[k].sym);
+  }
+#endif
+}
+
 static void anim_shuffle(uint32_t now);        // both defined further down
 static uint32_t anim_rand(uint32_t now);
 
@@ -92,7 +170,7 @@ static void roster_start(uint32_t now) {
 }
 
 // A 32-bit xorshift — the firmware's existing convention for "varying, cheap
-// and dependency-free", the same generator net/market.cpp's demo walk uses.
+// and dependency-free".
 // Seeded once from the boot counter and the millis of the first shuffle, so
 // two boards do not march in step and one board does not replay the same reel
 // on every power-on.
@@ -173,7 +251,7 @@ static bool    last_ok = false;
 // UP and DOWN act on PRESS. They also auto-repeat — but the repeat is only
 // ACTED ON by the settings page. Version A removed auto-repeat outright,
 // correctly, because there was no number left to run and leaning on a button
-// would otherwise cycle the market basket as fast as the repeat timer. The
+// would otherwise cycle a page as fast as the repeat timer. The
 // settings page brings a number back: a time in 15-minute steps is 96 presses
 // to sweep a day without it, and about seven seconds of holding with it. So
 // the event is generated here and discarded everywhere the old reasoning still
@@ -370,6 +448,24 @@ static void select_page(uint8_t p, uint32_t now) {
   last_input_ms = now;
 }
 
+// UP and DOWN short presses outside the settings page. UP always lands on the
+// stopwatch and starts it unless it is already running (then it only shows
+// it). DOWN on the stopwatch pauses a running one and clears a paused one; DOWN
+// anywhere else is the animation page, exactly as before.
+static void updown_press(uint8_t i, uint32_t now) {
+  if (i == 2) {
+    page = PG_STOPWATCH;
+    stw_run(now);
+  } else if (page == PG_STOPWATCH) {
+    stw_down(now);
+  } else {
+    select_page(PG_ANIM, now);
+    return;
+  }
+  dirty_screen = true;
+  last_input_ms = now;
+}
+
 // ============================================================== settings ====
 // Times move in 15-minute steps. Fine enough to say "half eleven" and coarse
 // enough that the auto-repeat sweeps a whole day in a few seconds.
@@ -500,7 +596,7 @@ bool ui_input(uint32_t now) {
     if (page == PG_SETTINGS) { settings_input(i, e); continue; }
 
     // A held UP or DOWN outside the settings page still means nothing. See the
-    // note on the Btn struct: there is no number to run on the market or
+    // note on the Btn struct: there is no number to run on the stopwatch or
     // animation pages, and leaning on a button should not cycle them.
     if (e == EV_REPEAT) continue;
 
@@ -508,8 +604,7 @@ bool ui_input(uint32_t now) {
       switch (i) {
         case 0: select_page(PG_CLOCK,  now); break;
         case 1: select_page(PG_SENSOR, now); break;
-        case 2: select_page(PG_MARKET, now); break;
-        default: select_page(PG_ANIM,  now); break;
+        default: updown_press(i, now);       break;
       }
       continue;
     }
@@ -543,8 +638,7 @@ void ui_button(uint8_t i, bool long_press) {
     switch (i) {
       case 0: select_page(PG_CLOCK,  now); break;
       case 1: select_page(PG_SENSOR, now); break;
-      case 2: select_page(PG_MARKET, now); break;
-      default: select_page(PG_ANIM,  now); break;
+      default: updown_press(i, now);       break;
     }
   }
 
@@ -561,9 +655,20 @@ void ui_button(uint8_t i, bool long_press) {
     // one press lands on SHOWREEL, a second on the shuffled roster (which
     // cuts to the clock interlude on its own ~10 s cadence).
     Serial.println(showreel_on ? " SHOWREEL" : " shuffle+clock");
+  } else if (page == PG_STOPWATCH) {
+    Serial.println();
+    ui_stopwatch_report();
   } else {
     Serial.print(" variant "); Serial.println(variant[page]);
   }
+}
+
+// Serial `W`: ONE line, parsed by the acceptance script. Keep the format.
+void ui_stopwatch_report() {
+  static const char *const NAME[3] = {"zero", "run", "pause"};
+  Serial.print("# SW state="); Serial.print(NAME[stw_state % 3]);
+  Serial.print(" ms=");        Serial.print(stw_elapsed(millis()));
+  Serial.print(" page=");      Serial.println((unsigned)page);
 }
 
 // ================================================================= tick ====
@@ -657,7 +762,7 @@ void ui_tick(uint32_t now, const RtcTime &t) {
 }
 
 // ================================================================ paint ====
-static void fill_pagedata(PageData &d, const RtcTime &t) {
+static void fill_pagedata(PageData &d, const RtcTime &t, uint32_t now) {
   d.clock.hour = t.hour; d.clock.minute = t.min; d.clock.second = t.sec;
   d.clock.day = t.day; d.clock.month = t.mon; d.clock.year = t.year;
   d.clock.weekday = fx_weekday(t.year, t.mon, t.day);
@@ -686,7 +791,9 @@ static void fill_pagedata(PageData &d, const RtcTime &t) {
     d.sens.light_pct = (uint8_t)(pct > 100 ? 100 : pct);
   }
 
-  market_basket(variant[PG_MARKET], d.q);
+  reel_quotes(d.q, now);
+  d.sw.state = stw_state;
+  d.sw.ms    = stw_elapsed(now);
   d.anim_frame = anim_tick;
   d.anim_scene = showreel_on ? (uint8_t)SCENE_SHOWREEL : roster_scene;
   d.sr_walk    = sr_walk_variant;
@@ -705,7 +812,6 @@ static void fill_pagedata(PageData &d, const RtcTime &t) {
 static const uint8_t CLOCK_SEC_MASK = 0x02;
 
 void ui_paint(uint32_t now, const RtcTime &t, bool force) {
-  (void)now;
   bool ok_changed = (t.ok != last_ok);
   bool state_changed = force || dirty_screen || ok_changed ||
                        page != last_page || variant[page] != last_variant;
@@ -729,15 +835,20 @@ void ui_paint(uint32_t now, const RtcTime &t, bool force) {
       // Uptime ticks, so this one genuinely changes every second.
       if (state_changed || sec_changed) mask = 0x0F;
       break;
-    case PG_MARKET:
-      // Quotes refresh on a 4 s cadence at best. Repainting on the second
-      // would push 4 KB over the bus every second to redraw identical pixels.
-      if (state_changed) mask = 0x0F;
-      else {
-        static uint32_t last_seen = 0;
-        if (market_last_ok() != last_seen) { last_seen = market_last_ok(); mask = 0x0F; }
+    case PG_STOPWATCH: {
+      // ASK FOR ALL FOUR every displayed second (and on every RTC second, so
+      // a paused or zero face still picks up a burn-in shift step within a
+      // second of it happening). Asking is cheap: display.cpp's dirty check
+      // compares the post-shift bytes, so in a normal second only the SECONDS
+      // panel is actually pushed, and on the minute the minutes panel too.
+      static uint32_t last_stw_s = 0xFFFFFFFFu;
+      const uint32_t es = stw_elapsed(now) / 1000u;
+      if (state_changed || sec_changed || es != last_stw_s) {
+        mask = 0x0F;
+        last_stw_s = es;
       }
       break;
+    }
     default:
       if (state_changed) mask = 0x0F;
       break;
@@ -745,7 +856,7 @@ void ui_paint(uint32_t now, const RtcTime &t, bool force) {
   if (!mask) return;
 
   PageData d{};
-  fill_pagedata(d, t);
+  fill_pagedata(d, t, now);
 
   for (uint8_t i = 0; i < N_SCREENS; i++) {
     if (!(mask & (1 << i))) continue;

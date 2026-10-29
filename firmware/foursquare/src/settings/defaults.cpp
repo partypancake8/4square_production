@@ -61,7 +61,7 @@ void settings_defaults(Settings &s) {
   // The daily screens-off schedule ships ENABLED: panels off 23:30-06:30 every
   // day. The night window above dims from 22:30 because that is when the room
   // gets dark; full-off belongs later, when nobody is looking at it at all.
-  // These are factory defaults only — a record already stored in the EEPROM
+  // These are factory defaults only: a record already stored in the EEPROM
   // ring wins over them, and the AUTO OFF item on the settings page turns the
   // schedule off if you would rather the clock stayed lit.
   s.off_enable   = 1;

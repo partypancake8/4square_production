@@ -4,6 +4,11 @@
 #   firmware/build.sh demo          -> DEMO image (no radio, no secrets needed)
 #   firmware/build.sh full          -> full image (WiFi + OTA, needs src/secrets.h)
 #   firmware/build.sh demo --upload /dev/ttyACM0   -> build, then flash over USB
+#   firmware/build.sh demo --no-check               -> skip the layout prover gate
+#
+# Before compiling, the layout prover (tools/layoutcheck) renders every screen
+# the chosen variant can draw and the build stops if any of them fails. It needs
+# g++ and Python with Pillow; --no-check skips it.
 #
 # Output lands in firmware/out/<variant>/ : foursquare.ino.bin (the app),
 # foursquare.ino.merged.bin (bootloader + partitions + app, flash at 0x0),
@@ -24,9 +29,11 @@ case "$VARIANT" in
 esac
 
 PORT=""
+CHECK=1
 while [ $# -gt 0 ]; do
   case "$1" in
     --upload) PORT="$2"; shift 2 ;;
+    --no-check) CHECK=0; shift ;;
     *) echo "unknown argument $1"; exit 1 ;;
   esac
 done
@@ -50,9 +57,16 @@ fi
 # carry anyone's local paths.
 PMAP="-ffile-prefix-map=$HOME/="
 
+if [ "$CHECK" = 1 ]; then
+  echo "== layout prover ($VARIANT) =="
+  if [ "$VARIANT" = demo ]; then DEMO=1 ../tools/layoutcheck/build.sh
+  else ../tools/layoutcheck/build.sh; fi
+  echo
+fi
+
 echo "== building $VARIANT ($FQBN) =="
 rm -rf "$OUT"
-arduino-cli compile --clean --fqbn "$FQBN" \
+arduino-cli compile --clean --jobs 4 --fqbn "$FQBN" \
   --build-property "compiler.c.extra_flags=$PMAP" \
   --build-property "compiler.cpp.extra_flags=$EXTRA $PMAP" \
   --output-dir "$OUT" "$SKETCH"

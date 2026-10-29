@@ -14,7 +14,6 @@
 //   faces.cpp     what a clock face shows — pure, no hardware
 //   pages.cpp     the four button pages — pure, no hardware
 //   anim.cpp      48x48 animation frames — pure, no hardware
-//   market.cpp    quotes over WiFi (NOT pure; it is why Quote holds a string)
 //   ui.cpp        buttons and page selection
 //   leds.cpp      the status language
 //   hw.cpp        RTC, SHT31, light
@@ -55,7 +54,6 @@
 #include "src/screens/faces.h"
 #include "src/screens/pages.h"
 #include "src/screens/anim.h"
-#include "src/net/market.h"
 #include "src/app/ui.h"
 #include "src/app/leds.h"
 #include "src/board/sensors.h"
@@ -147,7 +145,7 @@ static void report_rtc() {
   RtcTime t = rtc_read();
   Serial.print("C ");
   if (!t.ok) { Serial.println("READFAIL"); return; }
-  char buf[24];
+  char buf[32];
   snprintf(buf, sizeof buf, "%04u-%02u-%02u %02u:%02u:%02u",
            t.year, t.mon, t.day, t.hour, t.min, t.sec);
   Serial.print(buf);
@@ -221,8 +219,6 @@ static void print_settings() {
   // "no fault" or "a fault whose budget lapsed", and only this can tell them
   // apart — see the hold watchdog in leds.cpp.
   led_report();
-  Serial.print("#   quotes ok   = "); Serial.print(market_ok_count());
-  Serial.print(" last ");             Serial.println(market_last_ok());
 }
 
 // Anything unrecognised is ignored silently, so a stray keystroke in a
@@ -239,7 +235,9 @@ static void poll_serial() {
     switch (line[0]) {
       case '?': report_rtc(); break;
       case 'P': print_settings(); break;
-      case 'M': market_probe(); break;
+      // `# SW state=<zero|run|pause> ms=<elapsed> page=<PG_ index>`, one line.
+      // tools and the bench acceptance script parse it; keep the format.
+      case 'W': ui_stopwatch_report(); break;
       // B0..B3 = MODE/SET/UP/DOWN, and a trailing L makes it a LONG press.
       // SW1-SW4 are through-hole parts in the LCSC kit and JLC never fitted
       // them, so on an unpopulated board this is the only way to reach the
@@ -476,16 +474,16 @@ void setup() {
 
   disp_begin();
   ui_begin();
-  market_begin();
 
   Serial.println("# 4square rev O");
   Serial.println("# T <sht_c> <rh_pct> <rtc_c> <ldr_raw> <ldr_mv>"
                  " <btn_now> <btn_seen> <millis>");
-  Serial.println("# buttons: MODE=clock  SET=sensors  UP=markets  DOWN=anim");
-  Serial.println("#          hold MODE = LEDs on/off,  hold SET = settings");
+  Serial.println("# buttons: MODE=clock  SET=sensors  UP=stopwatch  DOWN=anim");
+  Serial.println("#          on stopwatch: UP start, DOWN pause then clear;"
+                 "  hold MODE = LEDs on/off,  hold SET = settings");
   Serial.println("# serial:  ? report | P settings | T set | Z clr OSF |"
                  " S rescan | R rotate | D dim | I identify | F factory");
-  Serial.println("#          B0-B3 press, B0L-B3L hold  (B1L opens settings)");
+  Serial.println("#          B0-B3 press, B0L-B3L hold  (B1L opens settings) | W stopwatch");
   Serial.print  ("# boot #"); Serial.println(ui_env.boots);
 
 #ifndef DEMO_BUILD
@@ -575,10 +573,6 @@ void loop() {
 
   ui_input(now);
   ui_tick(now, t);
-
-  // Quotes for the UP page. Self-scheduling and a no-op without WiFi, so it
-  // costs one comparison a pass when the network is down.
-  market_tick(now, ui_env.wifi_up);
 
   if ((int32_t)(now - next_ui) >= 0) {
     next_ui = now + UI_TICK_MS;

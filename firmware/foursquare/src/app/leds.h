@@ -31,8 +31,8 @@ enum LedStatus : uint8_t {
   LED_BOOT,           // 50  one-shot at power-on
   LED_WIFI_FAIL,      // 55
   LED_WIFI_JOINING,   // 60
-  // NO LED_SETUP_AP HERE. This tree has no provisioning-AP module — net/ is
-  // market.cpp and nothing else — so there is no condition that could assert
+  // NO LED_SETUP_AP HERE. This tree has no provisioning-AP module (net/ held
+  // only the market fetcher, removed 2026-10-15) — so there is no condition that could assert
   // one. Do not add the state before the module that drives it exists: a state
   // nothing asserts is a state nothing tests, and tools/ledcheck would be
   // proving the smoothness of an animation the device can never reach.

@@ -4,12 +4,12 @@
 // defaults leaned on. It is a BUILD FLAG, not a fork: every line below is
 // inside `#ifdef DEMO_BUILD`, the shipping build compiles to exactly what it
 // compiled to before, and there is no second copy of the firmware to keep in
-// step. Turn it on with `-DDEMO_BUILD`:  ! 4square-flash-c.sh --demo
+// step. Turn it on with `-DDEMO_BUILD`:  firmware/build.sh demo
 //
 // THIS IS FIRMWARE C's COPY. The demo is built on C, not on D, because C is
 // the firmware the device actually shipped with and the one whose grammar the
 // user knows: EACH BUTTON OWNS A PAGE — MODE the clock, SET the readings, UP
-// the markets, DOWN the animations — and pressing a button again cycles that
+// the stopwatch, DOWN the animations — and pressing a button again cycles that
 // page's variants. D replaced that with a named picker, which is a better
 // argument and the wrong product for a demo.
 //
@@ -72,10 +72,10 @@
 #define DEMO_WIFI_ON 0
 
 // ---- 3. QUOTES ARE BAKED IN ------------------------------------------------
-// The markets page keeps its four symbols — SPX, NVDA, AAPL, BTC — and gets
-// plausible values from a table in market.cpp instead of from CBOE and
-// Bitstamp. They drift slightly on a deterministic walk so the page looks
-// live rather than frozen; see the note over DEMO_QUOTES there.
+// The stock ticker page is gone (UP is the stopwatch since 2026-10-15), but the
+// showreel's STOCKS segment still shows SPX, NVDA, AAPL, BTC, from a baked
+// table in app/ui.cpp (reel_quotes) on a deterministic 3 s walk so the segment
+// looks live rather than frozen. Nothing fetches anything.
 #define DEMO_BAKED_QUOTES 1
 
 struct Settings;

@@ -9,7 +9,14 @@ set -e
 cd "$(dirname "$0")"
 
 FW=../../firmware/foursquare/src
-GFX="${GFX:-$HOME/Arduino/libraries/Adafruit_GFX_Library}"
+# Linux keeps the library in ~/Arduino; the Arduino IDE on macOS keeps it in
+# ~/Documents/Arduino. $GFX overrides both.
+if [ -z "${GFX:-}" ]; then
+  for c in "$HOME/Arduino/libraries/Adafruit_GFX_Library" \
+           "$HOME/Documents/Arduino/libraries/Adafruit_GFX_Library"; do
+    [ -f "$c/Adafruit_GFX.cpp" ] && GFX="$c" && break
+  done
+fi
 OUT=out
 mkdir -p "$OUT"
 

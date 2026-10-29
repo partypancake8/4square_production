@@ -874,9 +874,6 @@ static int16_t th_inset_x(const FaceTheme &t) {
 static int16_t th_inset_y(const FaceTheme &t) {
   return t.chrome == CH_CARD ? (int16_t)3 : (int16_t)0;
 }
-static int16_t th_availw(const FaceTheme &t) {
-  return (int16_t)(SAFE_W - 2 * th_inset_x(t) - 4);
-}
 
 // ---- the vertical budget, which is EXACTLY spent --------------------------
 // VERIFIED AGAINST THE SHIPPED FONT HEADERS, not taken from D's table — D's
@@ -1441,8 +1438,8 @@ void face_render(GFXcanvas1 &c, uint8_t w, uint8_t s, uint8_t ov,
       // truncates toward zero to 0, so "%d.%u" printed -0.4 C as "0.4".
       {
         int16_t at = (int16_t)(t < 0 ? -t : t);
-        snprintf(b, sizeof(b), "%s%d.%u", t < 0 ? "-" : "",
-                 at / 10, (unsigned)(at % 10));
+        snprintf(b, sizeof(b), "%s%u.%u", t < 0 ? "-" : "",
+                 (unsigned)((uint16_t)at / 10u), (unsigned)((uint16_t)at % 10u));
       }
       // "-123.4" is six characters; a fixed size 4 is 140 px and overruns the
       // 116 px safe width, so the size follows the string.

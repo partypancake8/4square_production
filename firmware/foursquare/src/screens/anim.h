@@ -139,7 +139,7 @@ bool anim_cycle_exact(uint8_t id);
 // non-sliding walk: while a foot is planted it stays at a fixed x on the
 // GLASS, so the body must advance at exactly the rate the artwork sweeps the
 // planted foot backward through the sprite box. This artwork (measured by
-// the foot-plant tool, plantview.cpp in the session scratchpad) is a HYBRID
+// a separate foot-plant measuring tool) is a HYBRID
 // in-place cycle: each 14-frame half-step holds the planted foot ~5 frames,
 // then sweeps it back ~1.3 px/frame over ~9 frames — a mean stride of
 // SR_STRIDE_PX = 1 px per artwork frame (13-14 px per half-step). Rendered

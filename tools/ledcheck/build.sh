@@ -19,7 +19,7 @@
 # The shim here is a FULL one rather than a borrow from a sibling prover: this
 # tree has no storecheck to share Arduino.h/Wire.h with.
 #
-# Nonzero exit means do not flash. 4square-flash-c.sh gates on it.
+# Nonzero exit means do not flash.
 #
 # scriptcheck exception: DONE marker. This is a prover, not an action script,
 # and its finish marker is the line the gate greps for -- "RESULT: PASS" or
@@ -30,7 +30,12 @@ set -e
 cd "$(dirname "$0")"
 
 FW=../../firmware/foursquare/src
-GFX="${GFX:-$HOME/Arduino/libraries/Adafruit_GFX_Library}"
+if [ -z "${GFX:-}" ]; then
+  for c in "$HOME/Arduino/libraries/Adafruit_GFX_Library" \
+           "$HOME/Documents/Arduino/libraries/Adafruit_GFX_Library"; do
+    [ -f "$c/Adafruit_GFX.cpp" ] && GFX="$c" && break
+  done
+fi
 OUT=out
 mkdir -p "$OUT"
 

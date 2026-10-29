@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # literals.sh — emit every credential literal in secrets.h as NAME<TAB>VALUE.
 #
-# The one job: hand 4square-flash-c.sh's credential sweep the exact strings that
+# The one job: hand a credential sweep the exact strings that
 # must not appear in a built image. It is the only thing in the tree that reads
 # those values, it writes them to a pipe and nowhere else, and it is a separate
 # file precisely so that the reading of secrets is one small auditable place

@@ -186,6 +186,8 @@ static void render_sensor(GFXcanvas1 &c, uint8_t slot, uint8_t variant,
 }
 
 // =========================================================== the markets ===
+// No longer a page: UP is the stopwatch since 2026-10-15. This renderer stays
+// because the showreel's STOCKS segment draws with it (see showreel_draw).
 // SYMBOL · PRICE · ARROW+CHANGE, laid out as a TABLE ROW and not as centred
 // text. NO SPARKLINE, NO GRAPH, and deliberately so — a 116x52 window cannot
 // hold a price history at a size anyone can read, and the version that tried
@@ -348,6 +350,52 @@ static void render_market(GFXcanvas1 &c, uint8_t slot, uint8_t variant,
   // 70 px), which starts at x52 and clears the arrow's 21 px column by 26 px.
   mkt_right(c, chg, fx_fit(chg, 2, (int16_t)(SAFE_X1 - SAFE_X0 - MKT_ARR_W - 3)),
             MKT_CHG_Y, true, "chg");
+}
+
+// ========================================================= the stopwatch ===
+// THE CLOCK PAGE'S OWN DIGITS, in the clock page's own arrangement. The clock
+// puts hours on TL and minutes on TR; the stopwatch puts MINUTES on TL and
+// SECONDS on TR, drawn by face_render with W_MINUTE / W_SECOND in S_OUTLINE --
+// stop 1 of the MODE cycle, the lowest-fill look and the one the prover holds
+// to the budget. Same glyphs, same safe area, same burn-in shift at commit.
+//
+//     TL  MM (00..59)        TR  SS (00..59)
+//     BL  READY|RUN|PAUSED   BR  hours elapsed
+//         "STOPWATCH"            "HOURS"
+//
+// Minutes WRAP at 60 and the hours carry on the BR panel, so the two big
+// fields are always exactly two digits and never change width. uint32 ms tops
+// out at 1193 h, four digits, which fx_fit keeps inside the panel.
+//
+// The STATE WORD is the paused/running indicator: a word, not a blinking
+// colon, because the four panels have no shared colon to blink and a blink
+// would double the bus traffic of a page that otherwise only pushes the
+// seconds panel once a second.
+static void render_stopwatch(GFXcanvas1 &c, uint8_t slot, const PageData &d) {
+  const uint32_t total_s = d.sw.ms / 1000u;
+  FaceData f = d.clock;
+  f.valid  = true;              // elapsed time does not depend on the RTC
+  f.hour24 = true;
+  f.minute = (uint8_t)((total_s / 60u) % 60u);
+  f.second = (uint8_t)(total_s % 60u);
+  switch (slot & 3) {
+    case SLOT_TL: face_render(c, W_MINUTE, S_OUTLINE, OV_NONE, f); return;
+    case SLOT_TR: face_render(c, W_SECOND, S_OUTLINE, OV_NONE, f); return;
+    case SLOT_BL: {
+      const char *w = d.sw.state == STW_RUN   ? "RUN"
+                    : d.sw.state == STW_PAUSE ? "PAUSED" : "READY";
+      stack2(c, w, fx_fit(w, 3, SAFE_W), "STOPWATCH", 1, 5, true,
+             "sw-state", "sw-name");
+      return;
+    }
+    default: {
+      char hb[12];
+      snprintf(hb, sizeof hb, "%lu", (unsigned long)(total_s / 3600u));
+      stack2(c, hb, fx_fit(hb, 4, SAFE_W), "HOURS", 1, 5, true,
+             "sw-hours", "sw-hlabel");
+      return;
+    }
+  }
 }
 
 // ======================================================== the animations ===
@@ -645,10 +693,8 @@ uint8_t page_variants(uint8_t page) {
   switch (page) {
     case PG_CLOCK:  return CLOCK_STYLE_N;
     case PG_SENSOR: return 2;
-    // Two baskets of four. The renderer always draws d.q[slot]; the caller
-    // swaps which basket is in there, so the pure layer stays unaware of how
-    // many symbols the fetcher actually tracks.
-    case PG_MARKET: return 2;
+    // ONE. UP on the stopwatch starts it; there is no look to cycle.
+    case PG_STOPWATCH: return 1;
     // ONE. The animation page plays itself, so there is nothing for a repeat
     // press to step through -- a repeat press reshuffles instead, which ui.cpp
     // does directly. This used to be 1 + AN_COUNT, back when the page was a
@@ -667,7 +713,7 @@ const char *page_name(uint8_t page) {
   switch (page) {
     case PG_CLOCK:    return "CLOCK";
     case PG_SENSOR:   return "SENSORS";
-    case PG_MARKET:   return "MARKETS";
+    case PG_STOPWATCH: return "STOPWATCH";
     case PG_ANIM:     return "ANIM";
     case PG_SETTINGS: return "SETTINGS";
   }
@@ -683,12 +729,14 @@ void page_render(GFXcanvas1 &c, uint8_t page, uint8_t slot, uint8_t variant,
   // else clears here, so no page can inherit pixels from the one before it —
   // the same assumption the prover makes when it snapshots elements.
   if (page == PG_CLOCK) { render_clock(c, slot, variant, d); return; }
+  // So does the stopwatch on its two digit panels; the other two are cleared
+  // below like every other page, and clearing first is harmless for all four.
 
   c.fillScreen(0);
   c.setTextWrap(false);
   switch (page) {
     case PG_SENSOR:   render_sensor(c, slot, variant, d); break;
-    case PG_MARKET:   render_market(c, slot, variant, d); break;
+    case PG_STOPWATCH: render_stopwatch(c, slot, d);       break;
     case PG_SETTINGS: render_settings(c, slot, d);        break;
     default:          render_anim(c, slot, variant, d);   break;
   }

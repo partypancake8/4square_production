@@ -9,7 +9,7 @@
 // The counters exist because of a real, expensive rule: strip.begin() must be
 // called EXACTLY ONCE, in led_begin(). On the C3 the RMT binding never comes
 // back if anything re-inits or borrows GPIO7 — the LEDs go permanently dead
-// while every call still reports success. That cost a full session. It is now
+// while every call still reports success. That cost a full day. It is now
 // a mechanical assertion instead of a comment.
 #pragma once
 #include <stdint.h>

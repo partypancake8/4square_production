@@ -5,7 +5,7 @@
 //
 //   MODE  -> the clock        (again: next clock style)
 //   SET   -> sensor readings  (again: next reading set)
-//   UP    -> markets          (again: next basket of symbols)
+//   UP    -> stopwatch        (start / resume; DOWN there pauses, then clears)
 //   DOWN  -> animations       (again: next animation)
 //
 // All four panels render the same page, one slot each. There is no menu, no
@@ -28,7 +28,20 @@
 // direct jump", and it is bounded: the page times out back to the clock, so it
 // is still true that you cannot get stuck anywhere.
 enum Page : uint8_t {
-  PG_CLOCK = 0, PG_SENSOR, PG_MARKET, PG_ANIM, PG_SETTINGS, PG_COUNT
+  PG_CLOCK = 0, PG_SENSOR, PG_STOPWATCH, PG_ANIM, PG_SETTINGS, PG_COUNT
+};
+// PG_STOPWATCH TOOK THE MARKETS PAGE'S SLOT, index 2, on purpose: the page
+// index is what serial `W` and the acceptance script report, and keeping the
+// numbering means CLOCK, SENSOR, ANIM and SETTINGS did not move.
+
+// ---- the stopwatch page ----------------------------------------------------
+// A SNAPSHOT, like everything else here: the state and the elapsed ms, already
+// computed by ui.cpp (which owns millis()). The renderer never reads a clock,
+// so the prover can enumerate every value it can show.
+enum StwState : uint8_t { STW_ZERO = 0, STW_RUN, STW_PAUSE };
+struct StopwatchData {
+  uint8_t  state;         // StwState
+  uint32_t ms;            // elapsed, frozen while paused, 0 when zero
 };
 
 // The clock styles MODE cycles, in order. OUTLINE is first because it is both
@@ -53,6 +66,10 @@ struct SensorData {
   bool     temp_f;
 };
 
+// Prices arrive as TEXT, already formatted. Since the stock ticker page was
+// removed (2026-10-15) the only reader is the showreel's STOCKS segment, fed
+// from a fixed basket in ui.cpp; nothing fetches quotes any more.
+//
 // Prices arrive as TEXT, already formatted by the fetcher. A renderer that
 // did its own float formatting would have to be handed a float, and then the
 // prover could not enumerate it — there is no finite set of floats. A short
@@ -108,6 +125,7 @@ struct PageData {
   FaceData     clock;
   SensorData   sens;
   Quote        q[4];
+  StopwatchData sw;
   uint16_t     anim_frame;
   // ---- the animation page, which PLAYS ITSELF -----------------------------
   // FOUR INDEPENDENT STREAMS, one per panel: which drawing that panel shows,
