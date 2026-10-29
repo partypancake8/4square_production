@@ -19,6 +19,7 @@ JLCPCB's real limits.
 | file | what it is |
 |---|---|
 | `4square-revO-gerbers.zip` | gerbers and drill file, upload as-is to JLCPCB |
+| `BOM.md` | the whole bill of materials for one clock, in one table |
 | `bom.csv` | JLCPCB assembly BOM, 37 parts, LCSC part numbers |
 | `cpl.csv` | JLCPCB pick-and-place file, bottom side, absolute coordinates |
 | `kit-bom.csv` | the hand-solder kit, ordered from LCSC |
