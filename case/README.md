@@ -2,7 +2,7 @@
 
 A printed front shell that holds the four screens, a two-piece retainer plate
 behind them, the board, and a back. The back is either a printed cover or a
-laser-cut clear acrylic panel that shows off the back of the board. The printed
+laser-cut clear acrylic panel that shows the back of the board. The printed
 parts are case rev 5; the acrylic back and its standoff frame are case rev 6.
 Outside size is about 79 x 79 mm.
 
@@ -23,10 +23,9 @@ Outside size is about 79 x 79 mm.
 Pick one back:
 
 - **Acrylic** (what the photos show): `4square-acrylic-back.dxf` plus
-  `4square-standoff-frame.stl`. Flat stock has no standoffs of its own, so the
-  frame holds the panel at the right height; without it the screws pull the
-  sheet into thin air.
-- **Printed**: `4square-printed-back.stl` on its own. Its standoffs are grown in.
+  `4square-standoff-frame.stl`. Flat stock has no standoffs of its own, so the frame holds the panel at the right height; without it the sheet has
+nothing to sit on and the screws pull it inward.
+- **Printed**: `4square-printed-back.stl` on its own. Its standoffs are printed as part of it.
 
 Hardware: four M3 x 16 mm self-tapping screws (16 mm or longer). They go in
 through the back and thread into the shell's corner bosses.

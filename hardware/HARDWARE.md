@@ -1,8 +1,7 @@
 # 4square hardware, rev O
 
 A two-layer, 74 x 74 mm, 1.6 mm FR4 board. The four OLED modules plug into
-sockets on the front; everything else is on the back, where a clear acrylic
-cover shows it off. Surface-mount parts are on the back only, so the board can
+sockets on the front; everything else is on the back, where it shows through the clear acrylic cover. Surface-mount parts are on the back only, so the board can
 be ordered as JLCPCB Economic PCBA (one side), and a short kit of through-hole
 parts is soldered by hand afterwards.
 
@@ -54,8 +53,8 @@ shows those parts as empty footprints.
 | BT1 | Keystone 3034 CR2032 clip | back, kit | |
 | H1-H4 | M3 mounting holes, 3.2 mm, at (4, 4) (70, 4) (4, 70) (70, 70) | | the case screws go through these |
 
-The axial resistors on the back are deliberate: they are visible through the
-acrylic and form a colour-band ladder.
+The axial resistors on the back are a deliberate choice: through the acrylic
+they form a colour-band ladder.
 
 ## Pin map (ESP32-C3, from `firmware/foursquare/src/config.h`)
 

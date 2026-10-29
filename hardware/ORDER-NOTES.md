@@ -42,9 +42,9 @@ Passives have no marker and their rotation is free.
   tape-and-reel version `C5213768` (3034TR) is the fallback. The RTC runs
   without a cell; the clip only matters across power cuts.
 
-The SHT31 is kept over the cheaper AHT20 on purpose: JLC only assembles the
-AHT20 on Standard PCBA, which adds a setup fee and 5 mm edge rails and costs
-more overall.
+The board uses the SHT31 instead of the cheaper AHT20 because JLC only
+assembles the AHT20 on Standard PCBA, which adds a setup fee and 5 mm edge
+rails and costs more overall.
 
 ## 4. The hand-solder kit (`kit-bom.csv`)
 

@@ -5,17 +5,12 @@
 [![Exploded view of the 4square case](docs/media/4square-exploded-640.gif)](docs/media/4square-exploded.gif)
 
 4square is a small desk clock built around four 0.96 in OLED panels in a 2x2
-grid: hours top-left, minutes top-right, weekday and date along the bottom.
-It runs on an ESP32-C3 SuperMini on a custom 74 x 74 mm board that also
-carries a battery-backed real-time clock, a temperature and humidity sensor, a
-light sensor for auto-dimming, three RGB status LEDs and four buttons. The
-case is a 3D-printed shell with a laser-cut clear acrylic back that shows off
-the board. The firmware is written for panel lifetime first: every pixel that
-reaches the glass goes through one function that applies a burn-in shift and a
-brightness cap, and a host-side prover checks every screen the firmware can
-draw before an image is allowed to ship. This repository has everything needed
-to build one: firmware, a prebuilt image, the board's manufacturing files, and
-the case.
+grid: hours top-left, minutes top-right, weekday and date along the bottom. It
+runs on an ESP32-C3 SuperMini on a custom 74 x 74 mm board, in a 3D-printed
+shell with a laser-cut clear acrylic back that shows the board. To protect the
+panels from burn-in, every pixel goes through one function that applies a pixel
+shift and a brightness cap, and a prover on your PC checks every screen the
+firmware can draw before an image ships.
 
 | | |
 |---|---|
@@ -29,6 +24,10 @@ the case.
 | Board | custom 74 x 74 mm, 2 layer, rev O, JLCPCB assembly plus a hand-solder kit |
 | Case | rev 5 PETG prints plus a rev 6 laser-cut 3 mm acrylic back with engraving, about 79 x 79 mm |
 | Power | USB-C, either the rear port or the SuperMini's own |
+
+This repository has everything needed to build one: firmware, a prebuilt image,
+the board's manufacturing files and the case.
+
 
 ## Repository layout
 
@@ -86,8 +85,8 @@ assembly order.
 
 ### Buttons
 
-Each button owns a page. Pressing the same button again cycles that page's
-variants. There is no menu to get stuck in.
+Each button owns a page, and pressing the same button again cycles that
+page's variants, so there is no menu to navigate.
 
 | button | page | press it again |
 |---|---|---|
@@ -122,15 +121,16 @@ Until SW1-SW4 are fitted, the buttons can also be pressed over serial (`B0` to
 ### Designed for panel lifetime
 
 These panels are rated around 10,000 hours, and a clock runs 8,760 hours a
-year, so burn-in is the main way this device dies. The firmware is built around
-that:
+year, so burn-in is the most likely way this clock fails. The firmware limits it
+in six ways:
 
 - **One route to the glass.** `firmware/foursquare/src/screens/display.cpp` is
   the only file that can write to a panel; the four `Adafruit_SSD1306` objects
   have internal linkage there. Every other drawing routine is handed a
   `GFXcanvas1` in RAM, and `disp_commit()` blits canvas to panel, applying the
-  pixel shift, the brightness cap and the night policy on the way. A new clock
-  face cannot forget to be burn-in safe because it has no other route.
+  pixel shift, the brightness cap and the night policy on the way. Because a
+  new clock face has no other route to a panel, it always gets the shift and
+  the cap.
 - **Pixel shift.** The image walks a serpentine tour inside a 6 px margin,
   spending exactly equal time at every offset.
 - **Outline digits by default.** Hollowing a large digit cuts it from about 800
@@ -250,7 +250,7 @@ Then:
     firmware/build.sh demo --upload /dev/ttyACM0 # build and flash in one go
 
 `build.sh` runs the layout prover first, for the variant you asked for, and
-stops if it fails; that is the gate every image passes before it ships
+stops if it fails, so every image passes the prover before it ships
 (`--no-check` skips it). It compiles with `--jobs 4` and `--clean`, and passes
 `-ffile-prefix-map` so the binary carries no local paths. Output goes to
 `firmware/out/<variant>/`: `foursquare.ino.bin` (app) and

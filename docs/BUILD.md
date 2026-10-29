@@ -1,7 +1,7 @@
 # Building a 4square
 
-This is the assembly order, front to back, the same order the parts come
-together in the exploded view.
+Assemble the clock front to back, in the same order the parts come together in
+the exploded view.
 
 ![Exploded view](media/still-exploded.png)
 
@@ -27,8 +27,7 @@ Print and cut the parts as described in [`case/README.md`](../case/README.md).
    without being pushed.
 3. **Retainer halves.** Lay both halves over the screens, pads down onto the
    modules. The halves meet on the centreline, and the notches in the pads
-   leave room for each module's four pins. The retainer is what keeps the
-   screens flat against the glass.
+   leave room for each module's four pins. The retainer keeps the screens flat against the glass.
 4. **Board.** Lower the board onto the shell's four corner bosses, screen side
    down, so the module pins pass through the board's screen headers. With the
    screens held by the pockets and the retainer, solder the screen pins now:
